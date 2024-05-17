@@ -1,0 +1,27 @@
+\usepackage{setspace}
+\usepackage[nodayofweek]{datetime}
+\usepackage[top=6cm]{geometry}
+
+
+$document-colors.tex()$
+$document-background.tex()$
+$document-header-footer.tex()$
+$document-text-style.tex()$
+
+$if(paragraph_numbers)$
+  \renewcommand{\theparagraph}{\S\arabic{paragraph}}
+  \setcounter{secnumdepth}{4}
+$endif$
+
+$if(highlighting-macros)$
+  $highlighting-macros$
+$endif$
+
+$tightlist.tex()$
+$tables.tex()$
+$graphics.tex()$
+$citations.tex()$
+
+$for(header-includes)$
+  $header-includes$
+$endfor$

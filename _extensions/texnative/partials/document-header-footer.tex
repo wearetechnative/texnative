@@ -1,0 +1,22 @@
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0pt} % NO LINE AT TOP OF PAGE
+
+\rhead[]{}
+\chead[]{}
+\lhead[]{}
+\rfoot[]{}
+\cfoot[]{}
+\lfoot[]{}
+
+$if(page_numbers)$
+  $if(dark_background)$
+  \lhead{\color{gray!60}Page \thepage\ of \pageref*{LastPage}}
+  $else$
+  \lhead{\color{gray}Page \thepage\ of \pageref*{LastPage}}
+  $endif$
+$endif$
+
+\renewcommand{\footrulewidth}{0pt} % NO LINE AT TOP OF PAGE

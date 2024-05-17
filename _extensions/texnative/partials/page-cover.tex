@@ -1,0 +1,62 @@
+\begin{titlepage}
+
+% \vspace*{0.12\textheight}
+\vspace*{-3cm}
+
+\begin{center}
+  $if(dark_background)$
+    \includegraphics[width=0.9\columnwidth]{_extensions/wearetechnative/texnativepdf/images/unleash.jpg}
+  $else$
+    \includegraphics[width=0.9\columnwidth]{_extensions/wearetechnative/texnativepdf/images/unleash_white.jpg}
+  $endif$
+\end{center}
+
+\begin{spacing}{2.0}
+
+\noindent
+\\
+{\huge {\MakeUppercase{$title$}}}\\
+{\Large {$subtitle$}}\\
+\end{spacing}
+
+\newdateformat{mydate}{\twodigit{\THEDAY}{ }\shortmonthname[\THEMONTH], \THEYEAR}
+
+\setlength\extrarowheight{3pt}
+\begin{flushleft}
+\noindent\begin{tabular}{@{}l l }
+
+$if(client)$
+{\bf Client:} & $client$ \\
+$endif$
+
+$if(contact_person)$
+  {\bf Contact Person:} & $contact_person$ \\
+$endif$
+
+$if(author)$
+{\bf By: } & $author$ \\
+$endif$
+
+$if(date)$
+{\bf Date: } & $date$ \\
+$endif$
+
+$if(tex_last_changed)$
+{\bf Last change:} & \today \\
+$endif$
+
+$if(type)$
+  $if(document_number)$
+  {\bf $type$:} & $document_number$ \\
+  $endif$
+$endif$
+
+$if(document_version)$
+{\bf Version:} & $document_version$ \\
+$endif$
+
+\end{tabular}
+\end{flushleft}
+
+\end{titlepage}
+

@@ -1,0 +1,32 @@
+$if(dark_background)$
+  \color{white}
+  \pagecolor{backgroundcolor}
+
+  $if(letterhead)$
+    \usepackage{background}
+    \backgroundsetup{
+      scale=1,
+      angle=0,
+      opacity=1.0,
+      position=current page.center,
+
+      contents={\includegraphics[width=\paperwidth,height=\paperheight]{_extensions/wearetechnative/texnativepdf/images/letterhead-technative-dia.png}}
+      }
+  $endif$
+
+$else$
+
+  $if(letterhead)$
+    \usepackage{background}
+    \backgroundsetup{
+    scale=1,
+    angle=0,
+    opacity=1.0,
+    position=current page.center,
+    contents={\includegraphics[width=\paperwidth,height=\paperheight]{_extensions/wearetechnative/texnativepdf/images/letterhead-technative.png}}
+    }
+  $endif$
+
+$endif$
+
+
