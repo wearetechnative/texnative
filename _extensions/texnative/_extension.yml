@@ -5,17 +5,26 @@ contributes:
   formats:
     pdf:
       # DOCUMENT DEFAULT CONFIGURATION
-      toc: true                  # show table of contents
-      toc-title: Contents        # title of table of contents
-      cover_page: true           # generate cover page
-      letterhead: true           # use a letterhead background
-      dark_background: true      # use the dark bg or letterhead with white text
-      page_numbers: true         # show page numbers
-      paragraph_numbers: true    # show paragraph numbers before headers
+      toc: true                                        # show table of contents
+      toc-title: Contents                              # title of table of contents
+      cover_page: true                                 # generate cover page
+      letterhead: true                                 # use a letterhead background
+      dark_background: true                            # use the dark bg or letterhead with white text
+      page_numbers: true                               # show page numbers
+      paragraph_numbers: true                          # show paragraph numbers before headers
       papersize: a4
+
+      letterhead_img: bgwhite.jpg                      # path to background image
+      letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
+      cover_illustration_img: cover-ill.png            # path to cover page illustration image
+      cover_illustration_img_darkbg: cover-ill.png     # path to cover page illustration image for dark background
 
       # DON'T CHANGE THESE
       classoption: table
+      format-resources:
+        - "images/bgdark.jpg"
+        - "images/bgwhite.jpg"
+        - "images/cover-ill.png"
       template-partials:
         - "partials/document-colors.tex"
         - "partials/document-background.tex"

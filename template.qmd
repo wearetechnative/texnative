@@ -1,15 +1,70 @@
 ---
-title: Untitled
-format:
-  texnative-pdf: default
-author: Pim Snel
+title: "Some Agreement about stuff"
+subtitle: Agreement for a typical business case
+author: Jane Dean
 date: last-modified
+format: texnative-pdf
+type: Report
+document_version: 1
+document_number: ABC013
+dark_background: false
+client:
+  name: Cool Customer Limited
+  short_name: Cool Customer
+  contact_person: Joe Johnson
+  address: Somewhereroad 1, Marslands
 ---
 
-# Introduction
+# Parties 
 
-*TODO* Create an example file that demonstrates the formatting and features of your format.
+My Company Limited, based at Dataroad 14, 33333 Livington, The World,
+represented by Jane Dean, referred to in this document as "My Company".
 
-# More Information
+And,
 
-You can learn more about controlling the appearance of PDF output here: <https://quarto.org/docs/output-formats/pdf-basics.html>
+{{< meta client.name >}}, represented by {{< meta client.contact_person >}} established 
+and office-accommodated at: {{< meta client.address >}}, referred to in 
+this document as "{{< meta client.short_name>}}".
+
+Hereafter jointly referred to as: “We”, both agree they have entered into a
+managed services agreement to which the following conditions apply:
+
+# Agreement
+
+## Chapter
+
+1. Some tasks
+
+2. More tasks we have agreed on.
+
+## Chapter
+
+Yet more tasks
+
+\newpage
+
+# Confirmation 
+
+As we agreed,\
+
+\mbox{~~~~~~~~~~~~~~~}{Starting date agreement:}\
+\
+\mbox{~~~~~~~~~~~~~~~}{ {{< meta date >}} }\
+\mbox{~~~~~~~~~~~~~~~}{ \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ } \
+
+\
+
+\
+
+Representing {{< meta client.name >}}Namens de opdrachtgever:\
+
+\mbox{~~~~~~~~~~~~~~~}{Date}\
+\
+
+\mbox{~~~~~~~~~~~~~~~}{ \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\mbox{~~~~~}\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ } \
+\
+
+\mbox{~~~~~~~~~~~~~~~}{Name and signature:}\
+\
+
+\mbox{~~~~~~~~~~~~~~~}{ \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\mbox{~~~~~}\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ } \
