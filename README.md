@@ -20,3 +20,8 @@ This will install the extension and create an example qmd file that you can use 
 
 Here is the source code for a minimal sample document: [example.qmd](example.qmd).
 
+
+## Credits
+
+Illustration is created by Illustrations.co from the 'Life' collection.
+
