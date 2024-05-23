@@ -2,6 +2,10 @@ title: TexNative
 author: Pim Snel
 version: 1.0.0
 contributes:
+
+  filters:
+    - texnative.lua
+
   formats:
     pdf:
       # DOCUMENT DEFAULT CONFIGURATION

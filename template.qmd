@@ -7,7 +7,9 @@ format: texnative-pdf
 type: Report
 document_version: 1
 document_number: ABC013
-dark_background: false
+dark_background: true
+filters:
+  - texnative
 client:
   name: Cool Customer Limited
   short_name: Cool Customer
@@ -15,19 +17,28 @@ client:
   address: Somewhereroad 1, Marslands
 ---
 
-# Parties 
+# Parties
 
 My Company Limited, based at Dataroad 14, 33333 Livington, The World,
 represented by Jane Dean, referred to in this document as "My Company".
 
 And,
 
-{{< meta client.name >}}, represented by {{< meta client.contact_person >}} established 
-and office-accommodated at: {{< meta client.address >}}, referred to in 
+{{< meta client.name >}}, represented by {{< meta client.contact_person >}} established
+and office-accommodated at: {{< meta client.address >}}, referred to in
 this document as "{{< meta client.short_name>}}".
 
 Hereafter jointly referred to as: “We”, both agree they have entered into a
 managed services agreement to which the following conditions apply:
+
+
+# Solid Table
+
+| Head 1 | Head 2  | Head 3 |
+|:-------|:-------:|-------:|
+| Alpha  | Beta    | Gamma  |
+| Delta  | Epsilon | Zeta   |
+| Eta    | Theta   | Iota |
 
 # Agreement
 
@@ -43,7 +54,7 @@ Yet more tasks
 
 \newpage
 
-# Confirmation 
+# Confirmation
 
 As we agreed,\
 
