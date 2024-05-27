@@ -86,7 +86,7 @@ end
 
   -- COLSPECS
   local col_specs = tbl.colspecs
-  print(col_specs)
+  --print(col_specs)
   local col_specs_latex = '| '
 
   for i, col_spec in ipairs(col_specs) do
@@ -113,11 +113,11 @@ end
    local dict = {}
    for key, value in string.gmatch(caption_content, '(%w+)=([^%s]+)') do
        dict[key] = value
-      print(key)
-      print(value)
+      --print(key)
+      --print(value)
    end
 
-    print(dict)
+    --print(dict)
 
 --   if dict["tablename"] then
 --     table_class = dict["tablename"]
