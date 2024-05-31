@@ -1,4 +1,9 @@
 % COVER
+
+\hyphenpenalty=10000\exhyphenpenalty=10000
+%\sloppy
+%\raggedright
+
 $if(cover_page)$
   $page-cover.tex()$
 $else$
@@ -11,5 +16,7 @@ $else$
 
 $endif$ %EIND IF COVER
 
+\hyphenpenalty=3000\exhyphenpenalty=3000
+%\fussy
 %\maketitle
 
