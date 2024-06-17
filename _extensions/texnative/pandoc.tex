@@ -3,6 +3,10 @@
 \usepackage[top=6cm]{geometry}
 \usepackage{multicol}
 
+$if(disable_justify)$
+\usepackage[document]{ragged2e}
+$endif$
+
 
 $document-colors.tex()$
 $document-background.tex()$
