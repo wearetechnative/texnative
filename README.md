@@ -64,6 +64,30 @@ letterhead_img: bgwhite.jpg                      # path to background image
 letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
 cover_illustration_img: cover-ill.png            # path to cover page illustration image
 cover_illustration_img_darkbg: cover-ill.png     # path to cover page illustration image for dark background
+disable_justify: false                           # true: justify left and right, false: only justify left;
+```
+
+## Custom letterhead
+
+Change `letterhead_img`, `letterhead_img_darkbg`, `cover_illustration_img` and
+`cover_illustration_img_darkbg` with images which fit your Corporate Identity.
+At TechNative we use an extra internal extension which provides all assets
+with our corporate identity.
+
+Our `_quarto.yml` looks like this: 
+
+```yaml
+filters:
+  - quarto
+  - texnative
+dark_background: true
+disable_justify: true
+format: texnative-pdf
+toc-depth: 4
+letterhead_img: _extensions/technative-internal/quarto-technative-branding/letterhead-technative.png
+letterhead_img_darkbg: _extensions/technative-internal/letterhead-technative-dia.png
+cover_illustration_img: _extensions/technative-internal/quarto-technative-branding/unleash_white.jpg
+cover_illustration_img_darkbg: _extensions/technative-internal/quarto-technative-branding/unleash.jpg
 ```
 
 ## Credits
