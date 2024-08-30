@@ -14,6 +14,7 @@ contributes:
       cover_page: true                                 # generate cover page
       letterhead: true                                 # use a letterhead background
       dark_background: true                            # use the dark bg or letterhead with white text
+      urlcolor: magenta
       page_numbers: true                               # show page numbers
       paragraph_numbers: true                          # show paragraph numbers before headers
       papersize: a4
