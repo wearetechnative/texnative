@@ -8,11 +8,16 @@ $if(cover_page)$
   $page-cover.tex()$
 $else$
 
+$if(no_title)$
+
+$else$
 \begin{spacing}{2.0}
 \noindent
 {\huge {\MakeUppercase{$title$}}}\\
 {\Large {$subtitle$}}
 \end{spacing}
+
+$endif$ %EIND IF NOTITLE
 
 $endif$ %EIND IF COVER
 
