@@ -1,9 +1,13 @@
 \usepackage{setspace}
 \usepackage[nodayofweek]{datetime}
-\usepackage[top=6cm]{geometry}
 \usepackage{multicol}
 \usepackage{fontawesome}
 \usepackage{textpos}
+\usepackage{makecell}
+% \usepackage{typearea} % This package causes many margin problems. Do we need this?!?
+\usepackage{longtable}
+\usepackage{lipsum}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 $if(disable_justify)$
 \usepackage[document]{ragged2e}

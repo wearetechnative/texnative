@@ -88,7 +88,7 @@ end
 
  end
 
-  local result = pandoc.List:new{pandoc.RawBlock("latex", '\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
+  local result = pandoc.List:new{pandoc.RawBlock("latex", '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
   -- HEADER
   local header_latex = get_rows_data(tbl.head.rows, 'tableheadercolor', false)
