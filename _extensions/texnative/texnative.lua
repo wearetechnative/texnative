@@ -7,6 +7,7 @@ local doc_meta = {
   table_body_txtcolor = nil,
   table_border_color = nil,
   table_border_width = nil,
+  table_cell_padding = nil,
   dark_background = false
 }
 
@@ -30,6 +31,9 @@ function Meta(meta)
   end
   if meta['table-border-width'] then
     doc_meta.table_border_width = pandoc.utils.stringify(meta['table-border-width'])
+  end
+  if meta['table-cell-padding'] then
+    doc_meta.table_cell_padding = pandoc.utils.stringify(meta['table-cell-padding'])
   end
   if meta['dark_background'] then
     doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
@@ -310,6 +314,16 @@ local function generate_tabularray(tbl)
     border_width = nil
   end
 
+  -- Resolve cell padding: per-table > document-level > nil (use default)
+  local cell_padding
+  if dict['tbl-cell-padding'] and dict['tbl-cell-padding'] ~= '' then
+    cell_padding = dict['tbl-cell-padding']
+  elseif doc_meta.table_cell_padding then
+    cell_padding = doc_meta.table_cell_padding
+  else
+    cell_padding = nil
+  end
+
   -- COLSPECS
   local col_specs = tbl.colspecs
   local col_specs_latex = '| '
@@ -377,7 +391,19 @@ local function generate_tabularray(tbl)
     border_width_end = '\\setlength{\\arrayrulewidth}{0.4pt}\n'  -- Reset to default
   end
 
-  result = result .. pandoc.List:new{pandoc.RawBlock("latex", border_color_begin .. border_width_begin .. '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
+  -- Apply cell padding if specified (controls both horizontal via tabcolsep and vertical via arraystretch)
+  local cell_padding_begin = ''
+  local cell_padding_end = ''
+  local array_stretch = '1.5'  -- default
+  if cell_padding and cell_padding ~= '' then
+    cell_padding_begin = '\\setlength{\\tabcolsep}{' .. cell_padding .. 'pt}\n'
+    cell_padding_end = '\\setlength{\\tabcolsep}{6pt}\n'
+    -- Scale arraystretch based on padding, reduced factor to position text higher
+    local padding_num = tonumber(cell_padding) or 6
+    array_stretch = string.format('%.2f', 1.0 + (padding_num / 26))
+  end
+
+  result = result .. pandoc.List:new{pandoc.RawBlock("latex", border_color_begin .. border_width_begin .. cell_padding_begin .. '\\renewcommand{\\arraystretch}{' .. array_stretch .. '}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
   -- HEADER
   local header_latex = get_rows_data(tbl.head.rows, header_color, header_txtcolor, false)
@@ -394,7 +420,7 @@ local function generate_tabularray(tbl)
   local footer_latex = get_rows_data(tbl.foot.rows, '', nil, false)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", footer_latex)}
 
-  result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}\n' .. border_width_end .. border_color_end)}
+  result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}\n' .. cell_padding_end .. border_width_end .. border_color_end)}
 
   if use_table_env then
     result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{table}')}

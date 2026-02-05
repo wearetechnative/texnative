@@ -132,7 +132,7 @@ Lets start with the most simple table.
 | Frontend   | 2.1.0    | Stable    |
 | Backend    | 3.0.0    | Beta      |
 | Database   | 5.7.0    | Stable    |
-: Table with custom padding { tbl-cell-padding="8" }
+: Table with custom padding { tbl-cell-padding="30" }
 
 | Component  | Version  | Status    |
 |:-----------|:--------:|----------:|
