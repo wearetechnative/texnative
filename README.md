@@ -104,10 +104,16 @@ configurable column widths, and captions with cross-reference labels.
 
 ### Examples
 
-Checkout [example_markdown_tables.md](./example_tables.md) for many table examples. It's
-rendered to [example_markdown_tables.pdf](./example_tables.pdf).
+Checkout [example_markdown_tables.qmd](./example_markdown_tables.qmd) for many table examples. It's
+rendered to [example_markdown_tables.pdf](./example_markdown_tables.pdf).
 
-Pandoc Grid tables are also supported checkout [example_grid_tables.md](example_grid_tables.md) and [example_grid_tables.pdf](example_grid_tables.pdf).
+Pandoc Grid tables are also supported checkout [example_grid_tables.qmd](example_grid_tables.qmd) and [example_grid_tables.pdf](example_grid_tables.pdf).
+
+For an example of document-level table styling via YAML frontmatter, see
+[example_tables_frontmatter_configured.qmd](./example_tables_frontmatter_configured.qmd) 
+rendered to [example_tables_frontmatter_configured.pdf](./example_tables_frontmatter_configured.pdf).
+This demonstrates configuring header/body colors, text colors, borders, padding,
+and alignment at the document level.
 
 ### Rich Text in Cells
 
@@ -291,48 +297,6 @@ Grid tables support multiple paragraphs within a single cell. Separate paragraph
 are rendered with appropriate spacing.
 
 For more grid table examples, see `example_grid_tables.qmd`.
-
-#### Row Spanning Cells
-
-Cells can span multiple rows using Pandoc's grid table syntax. Create row-spanning
-cells by merging row boundaries:
-
-```markdown
-+---------------+---------------+---------------+
-| Temperature   | min           | -89.2 °C      |
-| 1961-1990     +---------------+---------------+
-|               | mean          | 14 °C         |
-|               +---------------+---------------+
-|               | max           | 56.7 °C       |
-+---------------+---------------+---------------+
-
-: Table with cell spanning multiple rows
-```
-
-The first cell "Temperature 1961-1990" spans 3 rows. TexNative renders this using
-LaTeX's `\multirow` command.
-
-#### Multi-Row Headers
-
-Table headers can contain multiple rows. Use the `===` separator to mark the
-boundary between header rows and body rows:
-
-```markdown
-+---------------+---------------+---------------+---------------+
-| Location      | Temperature 1961-1990 in degree Celsius       |
-|               +---------------+---------------+---------------+
-|               | min           | mean          | max           |
-+===============+===============+===============+===============+
-| Antarctica    | -89.2         | N/A           | 19.8          |
-+---------------+---------------+---------------+---------------+
-| Earth         | -89.2         | 14            | 56.7          |
-+---------------+---------------+---------------+---------------+
-
-: Table with multi-row header
-```
-
-Both header rows receive header styling (background color, text formatting).
-Row spanning and column spanning work within headers.
 
 ## Credits
 

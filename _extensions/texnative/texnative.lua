@@ -532,10 +532,18 @@ local function generate_tabularray(tbl)
   return result
 end
 
-if FORMAT:match 'latex' then
-
-  function Table (tbl)
+-- Define the Table filter function for latex format
+local function TableFilter(tbl)
+  if FORMAT:match 'latex' then
     return generate_tabularray(tbl)
   end
-
+  return nil
 end
+
+-- Return a list of filter tables to ensure proper execution order:
+-- 1. Meta runs first to collect document-level settings
+-- 2. Table runs second with access to those settings
+return {
+  { Meta = Meta },
+  { Table = TableFilter }
+}
