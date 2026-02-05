@@ -148,12 +148,67 @@ local function render_inline_latex(inlines)
   return result
 end
 
+-- Render a bullet list to LaTeX
+local function render_bullet_list(list)
+  local result = '\\begin{itemize}[nosep,leftmargin=*]\n'
+  for _, item in ipairs(list.content) do
+    result = result .. '\\item '
+    -- Each item is a list of blocks
+    for j, block in ipairs(item) do
+      if block.t == 'Plain' or block.t == 'Para' then
+        result = result .. render_inline_latex(block.content)
+      elseif block.t == 'BulletList' then
+        -- Nested bullet list
+        result = result .. '\n' .. render_bullet_list(block)
+      else
+        result = result .. escape_latex(pandoc.utils.stringify(block))
+      end
+      if j < #item then
+        result = result .. ' '
+      end
+    end
+    result = result .. '\n'
+  end
+  result = result .. '\\end{itemize}'
+  return result
+end
+
 -- Render cell contents (which may be blocks containing inlines)
 local function render_cell_contents(contents)
   local result = ''
-  for _, block in ipairs(contents) do
-    if block.t == 'Plain' or block.t == 'Para' then
+  local block_count = #contents
+  for i, block in ipairs(contents) do
+    if block.t == 'Plain' then
       result = result .. render_inline_latex(block.content)
+    elseif block.t == 'Para' then
+      result = result .. render_inline_latex(block.content)
+      -- Add paragraph separator between multiple Para blocks
+      if i < block_count then
+        local next_block = contents[i + 1]
+        if next_block and next_block.t == 'Para' then
+          result = result .. '\\par\\vspace{0.5em}'
+        end
+      end
+    elseif block.t == 'BulletList' then
+      result = result .. render_bullet_list(block)
+    elseif block.t == 'OrderedList' then
+      -- Handle ordered lists similarly
+      result = result .. '\\begin{enumerate}[nosep,leftmargin=*]\n'
+      for _, item in ipairs(block.content) do
+        result = result .. '\\item '
+        for j, inner_block in ipairs(item) do
+          if inner_block.t == 'Plain' or inner_block.t == 'Para' then
+            result = result .. render_inline_latex(inner_block.content)
+          else
+            result = result .. escape_latex(pandoc.utils.stringify(inner_block))
+          end
+          if j < #item then
+            result = result .. ' '
+          end
+        end
+        result = result .. '\n'
+      end
+      result = result .. '\\end{enumerate}'
     else
       -- Fallback for other block types
       result = result .. escape_latex(pandoc.utils.stringify(block))
@@ -363,21 +418,41 @@ local function generate_tabularray(tbl)
     -- Check if we have explicit width from tbl-colwidths
     local has_explicit_width = col_widths[i] ~= nil
 
+    -- Determine alignment command for p{} columns
+    local align_cmd = ''
+    if align == 'AlignLeft' then
+      align_cmd = '\\raggedright\\arraybackslash'
+    elseif align == 'AlignRight' then
+      align_cmd = '\\raggedleft\\arraybackslash'
+    elseif align == 'AlignCenter' then
+      align_cmd = '\\centering\\arraybackslash'
+    end
+
     if has_explicit_width then
       -- Use proportional width with p{} specifier
       local width_fraction = col_widths[i] / 100
-      col_specs_latex = col_specs_latex .. 'p{' .. string.format('%.2f', width_fraction) .. '\\linewidth} |'
+      if align_cmd ~= '' then
+        col_specs_latex = col_specs_latex .. '>{' .. align_cmd .. '}p{' .. string.format('%.2f', width_fraction) .. '\\linewidth} |'
+      else
+        col_specs_latex = col_specs_latex .. 'p{' .. string.format('%.2f', width_fraction) .. '\\linewidth} |'
+      end
     elseif width and width > 0 then
       -- Use width from colspecs if available
-      col_specs_latex = col_specs_latex .. 'p{' .. string.format('%.2f', width) .. '\\linewidth} |'
+      if align_cmd ~= '' then
+        col_specs_latex = col_specs_latex .. '>{' .. align_cmd .. '}p{' .. string.format('%.2f', width) .. '\\linewidth} |'
+      else
+        col_specs_latex = col_specs_latex .. 'p{' .. string.format('%.2f', width) .. '\\linewidth} |'
+      end
     else
       -- Fall back to simple alignment specifiers
       if align == 'AlignLeft' then
         col_specs_latex = col_specs_latex .. 'l |'
       elseif align == 'AlignRight' then
         col_specs_latex = col_specs_latex .. 'r |'
-      else
+      elseif align == 'AlignCenter' then
         col_specs_latex = col_specs_latex .. 'c |'
+      else
+        col_specs_latex = col_specs_latex .. 'l |'
       end
     end
   end

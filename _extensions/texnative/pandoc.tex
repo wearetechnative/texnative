@@ -7,6 +7,7 @@
 % \usepackage{typearea} % This package causes many margin problems. Do we need this?!?
 \usepackage{longtable}
 \usepackage{lipsum}
+\usepackage{enumitem} % For compact lists in table cells
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 $if(disable_justify)$
@@ -20,12 +21,12 @@ $document-header-footer.tex()$
 $document-text-style.tex()$
 
 $if(paragraph_numbers)$
-  \renewcommand{\theparagraph}{\S\arabic{paragraph}}
-  \setcounter{secnumdepth}{4}
+\renewcommand{\theparagraph}{\S\arabic{paragraph}}
+\setcounter{secnumdepth}{4}
 $endif$
 
 $if(highlighting-macros)$
-  $highlighting-macros$
+$highlighting-macros$
 $endif$
 
 $tightlist.tex()$
@@ -34,5 +35,5 @@ $graphics.tex()$
 $citations.tex()$
 
 $for(header-includes)$
-  $header-includes$
+$header-includes$
 $endfor$

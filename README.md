@@ -105,7 +105,9 @@ configurable column widths, and captions with cross-reference labels.
 ### Examples
 
 Checkout [example_markdown_tables.md](./example_tables.md) for many table examples. It's
-rendered to [example_markdown_tables.pdf](./example_tables.pdf)
+rendered to [example_markdown_tables.pdf](./example_tables.pdf).
+
+Pandoc Grid tables are also supported checkout [example_grid_tables.md](example_grid_tables.md) and [example_grid_tables.pdf](example_grid_tables.pdf).
 
 ### Rich Text in Cells
 
@@ -233,6 +235,62 @@ Quick reference for all available table configuration options.
 
 : Feature status {#tbl-features tbl-colwidths="[30,50,20]" tbl-header-bgcolor="0,100,180" tbl-header-txtcolor="255,255,255" tbl-border-color="0,100,180" tbl-border-width="1" tbl-alignment="center"}
 ```
+
+### Advanced Grid Table Features
+
+TexNative supports Pandoc's grid table syntax with advanced features including
+column alignment, block content (bullet lists), and hard line breaks.
+
+#### Column Alignment
+
+Specify column alignment using colons at the boundaries of the separator line
+after the header:
+
+```markdown
++---------------+---------------+--------------------+
+| Right         | Left          | Centered           |
++==============:+:==============+:==================:+
+| Bananas       | 1.34          | built-in wrapper   |
++---------------+---------------+--------------------+
+```
+
+- Right-aligned: `+==============:+` (colon on right)
+- Left-aligned: `+:==============+` (colon on left)
+- Centered: `+:==============:+` (colons on both sides)
+- Default: `+===============+` (no colons)
+
+For headerless tables, place colons on the top line instead.
+
+#### Bullet Lists in Cells
+
+Grid tables can contain bullet lists within cells:
+
+```markdown
++---------------+---------------+--------------------+
+| Fruit         | Price         | Advantages         |
++===============+===============+====================+
+| Bananas       | 1.34          | - built-in wrapper |
+|               |               | - bright color     |
++---------------+---------------+--------------------+
+| Oranges       | 2.10          | - cures scurvy     |
+|               |               | - tasty            |
++---------------+---------------+--------------------+
+```
+
+Lists render with compact spacing suitable for table cells.
+
+#### Hard Line Breaks
+
+Use two spaces at the end of a line or a backslash to create hard line breaks
+within cell content. This allows multiple lines of text in a single cell without
+creating separate paragraphs.
+
+#### Multiple Paragraphs
+
+Grid tables support multiple paragraphs within a single cell. Separate paragraphs
+are rendered with appropriate spacing.
+
+For more grid table examples, see `example_grid_tables.qmd`.
 
 ## Credits
 
