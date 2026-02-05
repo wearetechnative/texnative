@@ -32,6 +32,20 @@ Lets start with the most simple table.
 : Table with rich text
 
 
++-----------+----------+--------------------+
+| Fruit     | Price    | Advantages         |
++:==========+=========:+====================+
+| Bananas   | €1.34    | - built-in wrapper |
+|           |          | - bright color     |
++-----------+----------+--------------------+
+| Oranges   | €2.10    | - cures scurvy     |
+|           |          | - tasty            |
++-----------+----------+--------------------+
+
+: Sample grid table.
+
+
+
 | Head 1     |   Head 2   |     Head 3 |
 |:-----------|:----------:|-----------:|
 | Alpha      |  **Beta**  |      Gamma |

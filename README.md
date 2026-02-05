@@ -104,8 +104,8 @@ configurable column widths, and captions with cross-reference labels.
 
 ### Examples
 
-Checkout [example_tables.md](./example_tables.md) for many table examples. It's
-rendered to [example_tables.pdf](./example_tables.pdf)
+Checkout [example_markdown_tables.md](./example_tables.md) for many table examples. It's
+rendered to [example_markdown_tables.pdf](./example_tables.pdf)
 
 ### Rich Text in Cells
 
