@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.1.1
+
+- fix global styling
+- more examples
+
 ## Version 1.1.0
 
 - Add many more table styling properties

@@ -100,6 +100,20 @@ For headerless tables, the colons go on the top line instead:
 
 A table foot can be defined by enclosing it with separator lines that use = instead of -:
 
+Grid tables look can also have extra style configurations
+
++---------------+---------------+--------------------+
+| Fruit         | Price         | Advantages         |
++===============+===============+====================+
+| Bananas       | €1.34         | - built-in wrapper |
+|               |               | - bright color     |
++---------------+---------------+--------------------+
+| Oranges       | €2.10         | - cures scurvy     |
+|               |               | - tasty            |
++---------------+---------------+--------------------+
+
+: Custom styling {tbl-body-bgcolor="80,50,20" tbl-body-txtcolor="255,255,255" tbl-header-bgcolor="250,0,0" tbl-border-color="250,0,0" tbl-border-width="2"}
+
 <!--
 
  +---------------+---------------+
