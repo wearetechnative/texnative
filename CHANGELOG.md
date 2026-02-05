@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## Version 1.1.0
 
 - Add many more table styling properties
 - Add table-body-bgcolor, table-header-bgcolor

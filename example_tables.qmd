@@ -4,14 +4,10 @@ filters:
   - texnative
 
 toc: false                                       # show table of contents
-dark_background: false                           # use the dark bg or letterhead with white text
 page_numbers: true                               # show page numbers
 paragraph_numbers: false                         # show paragraph numbers before headers
 papersize: a4                                    # page size
-letterhead_img: bgwhite.jpg                      # path to background image
-letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
-cover_illustration_img: cover-ill.png            # path to cover page illustration image
-cover_illustration_img_darkbg: cover-ill.png     # path to cover page illustration image for dark background
+letterhead: false                                # use a letterhead background
 disable_justify: true                            # true: justify left and right, false: only justify left;
 
 ---
@@ -69,7 +65,7 @@ Lets start with the most simple table.
 | Gadgets  | 50       | 19.99    |
 | Parts    | 200      | 4.99     |
 
-: Custom body color {tbl-body-bgcolor="80,50,20"}
+: Custom body color {tbl-body-bgcolor="80,50,20" tbl-body-txtcolor="255,255,255"}
 
 
 | Component  | Version  | Status    |
