@@ -5,6 +5,7 @@ local doc_meta = {
   table_body_color = nil,
   table_header_txtcolor = nil,
   table_body_txtcolor = nil,
+  table_border_color = nil,
   dark_background = false
 }
 
@@ -22,6 +23,9 @@ function Meta(meta)
   end
   if meta['table-body-txtcolor'] then
     doc_meta.table_body_txtcolor = pandoc.utils.stringify(meta['table-body-txtcolor'])
+  end
+  if meta['table-border-color'] then
+    doc_meta.table_border_color = pandoc.utils.stringify(meta['table-border-color'])
   end
   if meta['dark_background'] then
     doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
@@ -282,6 +286,16 @@ local function generate_tabularray(tbl)
     header_txtcolor = nil
   end
 
+  -- Resolve border color: per-table > document-level > nil (use default black)
+  local border_color
+  if dict['tbl-border-color'] and dict['tbl-border-color'] ~= '' then
+    border_color = resolve_color(dict['tbl-border-color'], nil)
+  elseif doc_meta.table_border_color then
+    border_color = resolve_color(doc_meta.table_border_color, nil)
+  else
+    border_color = nil
+  end
+
   -- COLSPECS
   local col_specs = tbl.colspecs
   local col_specs_latex = '| '
@@ -329,7 +343,19 @@ local function generate_tabularray(tbl)
     end
   end
 
-  result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
+  -- Apply border color if specified
+  local border_color_begin = ''
+  local border_color_end = ''
+  if border_color and border_color ~= '' then
+    if border_color:match("^{RGB}") then
+      border_color_begin = '\\arrayrulecolor[RGB]' .. border_color:gsub("^{RGB}", "") .. '\n'
+    else
+      border_color_begin = '\\arrayrulecolor{' .. border_color .. '}\n'
+    end
+    border_color_end = '\\arrayrulecolor{black}\n'  -- Reset to default
+  end
+
+  result = result .. pandoc.List:new{pandoc.RawBlock("latex", border_color_begin .. '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
   -- HEADER
   local header_latex = get_rows_data(tbl.head.rows, header_color, header_txtcolor, false)
@@ -346,7 +372,7 @@ local function generate_tabularray(tbl)
   local footer_latex = get_rows_data(tbl.foot.rows, '', nil, false)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", footer_latex)}
 
-  result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}')}
+  result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}\n' .. border_color_end)}
 
   if use_table_env then
     result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{table}')}
