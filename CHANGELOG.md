@@ -2,6 +2,7 @@
 
 ## Next
 
+- Add many more table styling properties
 - Add table-body-bgcolor, table-header-bgcolor
 - Preserve Rich Text in Table Cells
 - Support Column Widths

@@ -1,6 +1,6 @@
 title: TexNative
 author: Pim Snel
-version: 1.0.0
+version: 1.1.0
 contributes:
 
   filters:
@@ -41,8 +41,8 @@ contributes:
         - "partials/document-background.tex"
         - "partials/document-header-footer.tex"
         - "partials/document-text-style.tex"
-        - "partials/page-cover.tex"
-        - "partials/page-title.tex"
+        #- "partials/page-cover.tex"
+        #- "partials/page-title.tex"
         - "partials/page-cover.tex"
         - "partials/page-title.tex"
         - "before-body.tex"

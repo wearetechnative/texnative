@@ -328,24 +328,28 @@ local function generate_tabularray(tbl)
     cell_padding = nil
   end
 
-  -- Resolve table alignment: per-table > document-level > center (default)
+  -- Resolve table alignment: per-table > document-level > left (default)
   local table_alignment
   if dict['tbl-alignment'] and dict['tbl-alignment'] ~= '' then
     table_alignment = dict['tbl-alignment']
   elseif doc_meta.table_alignment then
     table_alignment = doc_meta.table_alignment
   else
-    table_alignment = 'center'
+    table_alignment = 'left'
   end
 
   -- Convert alignment to LaTeX command
   local alignment_latex
+  local caption_align
   if table_alignment == 'left' then
     alignment_latex = '\\raggedright'
+    caption_align = 'raggedright'
   elseif table_alignment == 'right' then
     alignment_latex = '\\raggedleft'
+    caption_align = 'raggedleft'
   else
     alignment_latex = '\\centering'
+    caption_align = 'centering'
   end
 
   -- COLSPECS
@@ -421,7 +425,7 @@ local function generate_tabularray(tbl)
     cell_padding_end = '\\setlength{\\tabcolsep}{6pt}\n'
     -- Scale arraystretch based on padding, reduced factor to position text higher
     local padding_num = tonumber(cell_padding) or 6
-    array_stretch = string.format('%.2f', 1.0 + (padding_num / 26))
+    array_stretch = string.format('%.2f', 1.0 + (padding_num / 12))
   end
 
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", border_color_begin .. border_width_begin .. cell_padding_begin .. '\\renewcommand{\\arraystretch}{' .. array_stretch .. '}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
@@ -445,7 +449,7 @@ local function generate_tabularray(tbl)
 
   if use_table_env then
     if has_caption then
-      result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\caption{' .. caption_text .. '}')}
+      result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\captionsetup{justification=' .. caption_align .. ',singlelinecheck=false}\n\\caption{' .. caption_text .. '}')}
     end
     result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{table}')}
   end

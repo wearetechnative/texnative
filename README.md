@@ -1,4 +1,4 @@
-# TexNative Format
+# TexNative PDF Format
 
 Modern customizable Business Document Format for creating clean Reports,
 Quotations, Letters etc...
@@ -18,6 +18,7 @@ as a starting place for your article.
 - white and dark background
 - custom letterhead en frontpage images
 - filter to create modern looking tables
+- advanced styling properties for markdown tables
 
 ![](Screenshot-TexNative.png)
 
@@ -100,6 +101,11 @@ cover_illustration_img_darkbg: _extensions/technative-internal/quarto-technative
 TexNative includes a custom table filter that renders professional tables with
 colored headers and proper formatting. Tables support rich text formatting,
 configurable column widths, and captions with cross-reference labels.
+
+### Examples
+
+Checkout [example_tables.md](./example_tables.md) for many table examples. It's
+rendered to [example_tables.pdf](./example_tables.pdf)
 
 ### Rich Text in Cells
 
@@ -214,7 +220,7 @@ Quick reference for all available table configuration options.
 | `tbl-border-color` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Border color |
 | `tbl-border-width` | Number (pt) | Document setting | Border width (0 = none) |
 | `tbl-cell-padding` | Number (pt) | Document setting | Cell padding |
-| `tbl-alignment` | `left` / `center` / `right` | Document setting | Horizontal placement |
+| `tbl-alignment` | `left` / `center` / `right` | left | Horizontal placement |
 
 **Property precedence:** Per-table caption properties override document-level YAML properties, which override theme defaults.
 
