@@ -18,8 +18,6 @@ Examples taken from: https://pandoc.org/demo/example33/8.9-tables.html but with 
 
 Grid tables look like this:
 
-: Sample grid table.
-
 +---------------+---------------+--------------------+
 | Fruit         | Price         | Advantages         |
 +===============+===============+====================+
