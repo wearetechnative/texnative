@@ -22,7 +22,7 @@ toc: true                                        # show table of contents
 toc-title: Contents                              # title of table of contents
 cover_page: true                                 # generate cover page
 letterhead: true                                 # use a letterhead background
-dark_background: true                            # use the dark bg or letterhead with white text
+dark_background: false                           # use the dark bg or letterhead with white text
 page_numbers: true                               # show page numbers
 paragraph_numbers: true                          # show paragraph numbers before headers
 papersize: a4
@@ -48,13 +48,43 @@ Hereafter jointly referred to as: “We”, both agree they have entered into a
 managed services agreement to which the following conditions apply:
 
 
-# Solid Table
+# Tables
+
+Tables are solid
+
+## Simple Table
 
 | Head 1 | Head 2  | Head 3 |
 |:-------|:-------:|-------:|
 | Alpha  | Beta    | Gamma  |
 | Delta  | Epsilon | Zeta   |
-| Eta    | Theta   | Iota |
+| Eta    | Theta   | Iota   |
+
+## Table with Rich Text
+
+| Feature       | Description                    | Status       |
+|:--------------|:------------------------------:|-------------:|
+| **Parser**    | Handles *all* input formats    | `complete`   |
+| **Exporter**  | Outputs to **PDF** and *HTML*  | `in progress`|
+| Validator     | Check `syntax` errors          | _pending_    |
+
+: Table with rich text
+
+| Head 1     |   Head 2   |     Head 3 |
+|:-----------|:----------:|-----------:|
+| Alpha      |  **Beta**  |      Gamma |
+| Delta      |  Epsilon   |     _Zeta_ |
+| Eta        |   Theta    |       Iota |
+
+: Table with column widths { tbl-colwidths="[50,25,25]" }
+
+| Service          | SLA        | Cost     |
+|:-----------------|:----------:|---------:|
+| Basic Support    | 48 hours   | Free     |
+| Premium Support  | 4 hours    | 99/month |
+| Enterprise       | 1 hour     | Custom   |
+
+: Table with caption and label {#tbl-sla}
 
 # Agreement
 

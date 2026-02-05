@@ -90,6 +90,60 @@ cover_illustration_img: _extensions/technative-internal/quarto-technative-brandi
 cover_illustration_img_darkbg: _extensions/technative-internal/quarto-technative-branding/unleash.jpg
 ```
 
+## Tables
+
+TexNative includes a custom table filter that renders professional tables with
+colored headers and proper formatting. Tables support rich text formatting,
+configurable column widths, and captions with cross-reference labels.
+
+### Rich Text in Cells
+
+Table cells preserve inline formatting including:
+
+- **Bold**: `**bold text**`
+- *Italic*: `*italic text*`
+- `Code`: `` `code` ``
+- Links: `[text](https://example.com)`
+
+Example with rich text:
+
+```markdown
+| Feature    | Description           | Status     |
+|:-----------|:---------------------:|------------|
+| **Parser** | Handles *all* formats | `complete` |
+| Exporter   | [Docs](https://x.com) | _pending_  |
+```
+
+### Column Widths
+
+Control column widths using the `tbl-colwidths` attribute in the table caption.
+Values are percentages that should sum to 100 or less.
+
+```markdown
+| Name       | Description                          | Price |
+|:-----------|:-------------------------------------|------:|
+| Widget     | A useful widget for various tasks    |  9.99 |
+| Gadget     | An advanced gadget with features     | 19.99 |
+
+: Product catalog {tbl-colwidths="[20,60,20]"}
+```
+
+When no widths are specified, columns use automatic sizing based on alignment.
+
+### Captions and Labels
+
+Add captions and cross-reference labels using Quarto's standard syntax:
+
+```markdown
+| Head 1 | Head 2 |
+|--------|--------|
+| A      | B      |
+
+: My table caption {#tbl-mytable}
+```
+
+Reference the table elsewhere with `@tbl-mytable`.
+
 ## Credits
 
 Illustration is created by Illustrations.co from the 'Life' collection.
