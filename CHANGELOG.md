@@ -2,10 +2,11 @@
 
 ## Next
 
-- Init OpenSpec
+- Add table-body-bgcolor, table-header-bgcolor
 - Preserve Rich Text in Table Cells
 - Support Column Widths
 - Respect Caption Properties
+- Init OpenSpec
 - Add Changelog
 
 ## Version 1.0.0

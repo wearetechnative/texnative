@@ -144,6 +144,41 @@ Add captions and cross-reference labels using Quarto's standard syntax:
 
 Reference the table elsewhere with `@tbl-mytable`.
 
+### Custom Table Colors
+
+You can customize the header and body background colors at both document-level
+(in YAML front matter) and per-table (in caption properties).
+
+**Document-level YAML options:**
+
+```yaml
+table-header-bgcolor: "255,128,0"    # RGB format
+table-body-bgcolor: "255,240,220"    # RGB format
+```
+
+**Per-table caption properties:**
+
+```markdown
+| Feature | Status |
+|---------|--------|
+| Auth    | Done   |
+| API     | WIP    |
+
+: Status table {tbl-header-bgcolor="0,100,200" tbl-body-bgcolor="230,240,255"}
+```
+
+Colors can be specified as:
+- RGB format: `"255,128,0"` 
+- Hex format: `"#ff8000"` or `"ff8000"`
+
+Per-table colors override document-level settings, which override theme defaults.
+
+**Dark background defaults:**
+
+When `dark_background: true` is set, tables automatically use:
+- Header: `#471d00` (dark orange-brown)
+- Body: `#6d2b00` (medium orange-brown)
+
 ## Credits
 
 Illustration is created by Illustrations.co from the 'Life' collection.

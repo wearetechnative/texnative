@@ -1,6 +1,24 @@
 
+-- Module-level variables for document metadata
+local doc_meta = {
+  table_header_color = nil,
+  table_body_color = nil,
+  dark_background = false
+}
+
 -- FILTERS/DATE-FORMAT.LUA
 function Meta(meta)
+  -- Store table color settings from document metadata
+  if meta['table-header-bgcolor'] then
+    doc_meta.table_header_color = pandoc.utils.stringify(meta['table-header-bgcolor'])
+  end
+  if meta['table-body-bgcolor'] then
+    doc_meta.table_body_color = pandoc.utils.stringify(meta['table-body-bgcolor'])
+  end
+  if meta['dark_background'] then
+    doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
+  end
+
   if meta.date then
     local format = "(%d+)-(%d+)-(%d+)"
     local y, m, d = pandoc.utils.stringify(meta.date):match(format)
@@ -34,6 +52,44 @@ local function escape_latex(text)
     text = text:gsub(char, replacement)
   end
   return text
+end
+
+-- Convert hex color (e.g., "471d00") to RGB string (e.g., "71,29,0")
+local function hex_to_rgb(hex)
+  hex = hex:gsub("^#", "") -- Remove leading # if present
+  if #hex == 6 then
+    local r = tonumber(hex:sub(1, 2), 16)
+    local g = tonumber(hex:sub(3, 4), 16)
+    local b = tonumber(hex:sub(5, 6), 16)
+    if r and g and b then
+      return string.format("%d,%d,%d", r, g, b)
+    end
+  end
+  return nil
+end
+
+-- Generate LaTeX color definition or reference
+-- Returns the color name to use with \cellcolor{}
+-- If color_value is provided (RGB string like "255,0,0" or hex like "471d00"), 
+-- returns inline color definition
+local function resolve_color(color_value, default_color_name)
+  if not color_value or color_value == '' then
+    return default_color_name
+  end
+  
+  -- Check if it's a hex color
+  local rgb = color_value
+  if color_value:match("^#?%x%x%x%x%x%x$") then
+    rgb = hex_to_rgb(color_value)
+  end
+  
+  -- Return inline RGB color specification
+  if rgb and rgb:match("^%d+,%d+,%d+$") then
+    return string.format("{RGB}{%s}", rgb)
+  end
+  
+  -- Fallback to default
+  return default_color_name
 end
 
 -- Render Pandoc inline elements to LaTeX, preserving rich text formatting
@@ -88,8 +144,13 @@ local function get_rows_data(rows, cell_color, strong)
   local strong_begin = ''
   local strong_end = ''
 
-  if(cell_color ~='') then
-    latex_cell_color = '\\cellcolor{'..cell_color..'}'
+  if(cell_color and cell_color ~='') then
+    -- Check if it's an inline RGB color specification or a named color
+    if cell_color:match("^{RGB}") then
+      latex_cell_color = '\\cellcolor[RGB]' .. cell_color:gsub("^{RGB}", "") .. ''
+    else
+      latex_cell_color = '\\cellcolor{'..cell_color..'}'
+    end
   end
   if(strong) then
     strong_begin = "\\bf{"
@@ -120,15 +181,31 @@ local function generate_tabularray(tbl)
   local caption_content = caption_raw:match("{(.-)}")
   local caption_text = caption_raw:gsub("%s*{.-}%s*", ""):match("^%s*(.-)%s*$") -- Remove property block and trim
 
+  -- Normalize quotes: convert Unicode curly quotes to ASCII quotes
+  if caption_content then
+    caption_content = caption_content:gsub("\226\128\156", '"')  -- LEFT DOUBLE QUOTATION MARK "
+    caption_content = caption_content:gsub("\226\128\157", '"')  -- RIGHT DOUBLE QUOTATION MARK "
+    caption_content = caption_content:gsub("\226\128\152", "'")  -- LEFT SINGLE QUOTATION MARK '
+    caption_content = caption_content:gsub("\226\128\153", "'")  -- RIGHT SINGLE QUOTATION MARK '
+  end
+
   -- Parse caption properties into dict
   local dict = {}
   if caption_content then
-    for key, value in string.gmatch(caption_content, '([#%w%-]+)=?([^%s]*)') do
-      if key:match("^#") then
-        dict['label'] = key:sub(2) -- Remove leading #
-      else
+    -- First, try to match quoted values like key="value"
+    for key, value in string.gmatch(caption_content, '([%w%-]+)="([^"]*)"') do
+      dict[key] = value
+    end
+    -- Then match unquoted values like key=value (no spaces in value)
+    for key, value in string.gmatch(caption_content, '([%w%-]+)=(%[?[^%s"]+%]?)') do
+      if not dict[key] then  -- Don't overwrite quoted values
         dict[key] = value
       end
+    end
+    -- Finally match label syntax like #tbl-myid
+    local label = caption_content:match('#([%w%-]+)')
+    if label then
+      dict['label'] = label
     end
   end
 
@@ -141,6 +218,28 @@ local function generate_tabularray(tbl)
         table.insert(col_widths, tonumber(w))
       end
     end
+  end
+
+  -- Resolve header color: per-table > document-level > theme default
+  local header_color
+  if dict['tbl-header-bgcolor'] and dict['tbl-header-bgcolor'] ~= '' then
+    header_color = resolve_color(dict['tbl-header-bgcolor'], 'tableheadercolor')
+  elseif doc_meta.table_header_color then
+    header_color = resolve_color(doc_meta.table_header_color, 'tableheadercolor')
+  else
+    header_color = 'tableheadercolor'
+  end
+
+  -- Resolve body color: per-table > document-level > theme default (dark) or none (light)
+  local body_color
+  if dict['tbl-body-bgcolor'] and dict['tbl-body-bgcolor'] ~= '' then
+    body_color = resolve_color(dict['tbl-body-bgcolor'], nil)
+  elseif doc_meta.table_body_color then
+    body_color = resolve_color(doc_meta.table_body_color, nil)
+  elseif doc_meta.dark_background then
+    body_color = 'tablebodycolor'
+  else
+    body_color = nil
   end
 
   -- COLSPECS
@@ -193,13 +292,13 @@ local function generate_tabularray(tbl)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
   -- HEADER
-  local header_latex = get_rows_data(tbl.head.rows, 'tableheadercolor', false)
+  local header_latex = get_rows_data(tbl.head.rows, header_color, false)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", header_latex)}
 
   -- ROWS
   local rows_latex = ''
   for _, tablebody in ipairs(tbl.bodies) do
-    rows_latex = get_rows_data(tablebody.body, '', false)
+    rows_latex = get_rows_data(tablebody.body, body_color, false)
   end
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", rows_latex)}
 

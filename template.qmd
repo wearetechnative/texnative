@@ -22,7 +22,7 @@ toc: true                                        # show table of contents
 toc-title: Contents                              # title of table of contents
 cover_page: true                                 # generate cover page
 letterhead: true                                 # use a letterhead background
-dark_background: false                           # use the dark bg or letterhead with white text
+dark_background: true                            # use the dark bg or letterhead with white text
 page_numbers: true                               # show page numbers
 paragraph_numbers: true                          # show paragraph numbers before headers
 papersize: a4
@@ -30,6 +30,7 @@ letterhead_img: bgwhite.jpg                      # path to background image
 letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
 cover_illustration_img: cover-ill.png            # path to cover page illustration image
 cover_illustration_img_darkbg: cover-ill.png     # path to cover page illustration image for dark background
+disable_justify: true                            # true: justify left and right, false: only justify left;
 
 ---
 
@@ -47,20 +48,15 @@ this document as "{{< meta client.short_name>}}".
 Hereafter jointly referred to as: “We”, both agree they have entered into a
 managed services agreement to which the following conditions apply:
 
-
 # Tables
 
-Tables are solid
-
-## Simple Table
+Lets start with the most simple table.
 
 | Head 1 | Head 2  | Head 3 |
 |:-------|:-------:|-------:|
 | Alpha  | Beta    | Gamma  |
 | Delta  | Epsilon | Zeta   |
 | Eta    | Theta   | Iota   |
-
-## Table with Rich Text
 
 | Feature       | Description                    | Status       |
 |:--------------|:------------------------------:|-------------:|
@@ -85,6 +81,32 @@ Tables are solid
 | Enterprise       | 1 hour     | Custom   |
 
 : Table with caption and label {#tbl-sla}
+
+
+| Priority | Task               | Owner    |
+|:---------|:-------------------|:---------|
+| High     | Security audit     | Alice    |
+| Medium   | Documentation      | Bob      |
+| Low      | Code cleanup       | Charlie  |
+
+: Custom header color {tbl-header-bgcolor="0,100,150"}
+
+| Item     | Quantity | Price    |
+|:---------|:--------:|---------:|
+| Widgets  | 100      | 9.99     |
+| Gadgets  | 50       | 19.99    |
+| Parts    | 200      | 4.99     |
+
+: Custom body color {tbl-body-bgcolor="80,50,20"}
+
+
+| Head 1     |   Head 2   |     Head 3 |
+|:--------------------------------------------------------------------|:----------:|--------------------------------------------------------------------:|
+| Alpha                                                               |  **Beta**  | This cell contains text which should be wrapped over multiple lines |
+| This cell contains text which should be wrapped over multiple lines |  Epsilon   |                                                              _Zeta_ |
+| Eta                                                                 |   Theta    |                                                                Iota |
+
+: Table with multiline cells { tbl-colwidths="[25,25,25]" }
 
 # Agreement
 
