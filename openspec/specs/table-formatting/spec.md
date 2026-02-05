@@ -96,7 +96,7 @@ The table filter SHALL support configurable header background colors at both doc
 #### Scenario: No header color specified
 
 - **WHEN** neither document YAML nor caption specifies a header color
-- **THEN** the table header SHALL use the theme default `tableheadercolor`
+- **THEN** the table header SHALL use the theme default `tableheaderbgcolor`
 
 #### Scenario: Dark background theme default header color
 

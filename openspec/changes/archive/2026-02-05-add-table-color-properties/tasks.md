@@ -9,7 +9,7 @@
 
 - [x] 2.1 Set default header color to `#471d00` when `dark_background: true`
 - [x] 2.2 Set default body color to `#6d2b00` when `dark_background: true`
-- [x] 2.3 Update `document-colors.tex` to define `tablebodycolor` for dark background theme
+- [x] 2.3 Update `document-colors.tex` to define `tablebodybgcolor` for dark background theme
 
 ## 3. Per-Table Color Properties
 

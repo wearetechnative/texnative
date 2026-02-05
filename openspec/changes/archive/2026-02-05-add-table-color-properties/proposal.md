@@ -2,7 +2,7 @@
 
 ## Why
 
-Currently, table header background color is hardcoded to `tableheadercolor` (defined per theme in document-colors.tex), and table body rows have no background color option. Users need flexibility to customize these colors per-table or set document-wide defaults for consistent branding.
+Currently, table header background color is hardcoded to `tableheaderbgcolor` (defined per theme in document-colors.tex), and table body rows have no background color option. Users need flexibility to customize these colors per-table or set document-wide defaults for consistent branding.
 
 ## What Changes
 

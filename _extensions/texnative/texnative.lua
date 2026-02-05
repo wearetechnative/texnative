@@ -3,6 +3,8 @@
 local doc_meta = {
   table_header_color = nil,
   table_body_color = nil,
+  table_header_txtcolor = nil,
+  table_body_txtcolor = nil,
   dark_background = false
 }
 
@@ -14,6 +16,12 @@ function Meta(meta)
   end
   if meta['table-body-bgcolor'] then
     doc_meta.table_body_color = pandoc.utils.stringify(meta['table-body-bgcolor'])
+  end
+  if meta['table-header-txtcolor'] then
+    doc_meta.table_header_txtcolor = pandoc.utils.stringify(meta['table-header-txtcolor'])
+  end
+  if meta['table-body-txtcolor'] then
+    doc_meta.table_body_txtcolor = pandoc.utils.stringify(meta['table-body-txtcolor'])
   end
   if meta['dark_background'] then
     doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
@@ -138,9 +146,11 @@ local function render_cell_contents(contents)
   return result
 end
 
-local function get_rows_data(rows, cell_color, strong)
+local function get_rows_data(rows, cell_color, text_color, strong)
 
   local latex_cell_color = ''
+  local latex_text_color_begin = ''
+  local latex_text_color_end = ''
   local strong_begin = ''
   local strong_end = ''
 
@@ -152,6 +162,16 @@ local function get_rows_data(rows, cell_color, strong)
       latex_cell_color = '\\cellcolor{'..cell_color..'}'
     end
   end
+  if(text_color and text_color ~= '') then
+    -- Check if it's an inline RGB color specification or a named color
+    if text_color:match("^{RGB}") then
+      latex_text_color_begin = '\\textcolor[RGB]' .. text_color:gsub("^{RGB}", "") .. '{'
+      latex_text_color_end = '}'
+    else
+      latex_text_color_begin = '\\textcolor{' .. text_color .. '}{'
+      latex_text_color_end = '}'
+    end
+  end
   if(strong) then
     strong_begin = "\\bf{"
     strong_end = "}"
@@ -161,7 +181,7 @@ local function get_rows_data(rows, cell_color, strong)
 
     for k, cell in ipairs(row.cells) do
       local cell_content = render_cell_contents(cell.contents)
-      data = data .. latex_cell_color .. strong_begin .. cell_content .. strong_end
+      data = data .. latex_cell_color .. latex_text_color_begin .. strong_begin .. cell_content .. strong_end .. latex_text_color_end
       if (k == #row.cells) then
         data = data .. ' \\\\ \n'
       else
@@ -223,11 +243,11 @@ local function generate_tabularray(tbl)
   -- Resolve header color: per-table > document-level > theme default
   local header_color
   if dict['tbl-header-bgcolor'] and dict['tbl-header-bgcolor'] ~= '' then
-    header_color = resolve_color(dict['tbl-header-bgcolor'], 'tableheadercolor')
+    header_color = resolve_color(dict['tbl-header-bgcolor'], 'tableheaderbgcolor')
   elseif doc_meta.table_header_color then
-    header_color = resolve_color(doc_meta.table_header_color, 'tableheadercolor')
+    header_color = resolve_color(doc_meta.table_header_color, 'tableheaderbgcolor')
   else
-    header_color = 'tableheadercolor'
+    header_color = 'tableheaderbgcolor'
   end
 
   -- Resolve body color: per-table > document-level > theme default (dark) or none (light)
@@ -237,9 +257,29 @@ local function generate_tabularray(tbl)
   elseif doc_meta.table_body_color then
     body_color = resolve_color(doc_meta.table_body_color, nil)
   elseif doc_meta.dark_background then
-    body_color = 'tablebodycolor'
+    body_color = 'tablebodybgcolor'
   else
     body_color = nil
+  end
+
+  -- Resolve body text color: per-table > document-level > nil (use default)
+  local body_txtcolor
+  if dict['tbl-body-txtcolor'] and dict['tbl-body-txtcolor'] ~= '' then
+    body_txtcolor = resolve_color(dict['tbl-body-txtcolor'], nil)
+  elseif doc_meta.table_body_txtcolor then
+    body_txtcolor = resolve_color(doc_meta.table_body_txtcolor, nil)
+  else
+    body_txtcolor = nil
+  end
+
+  -- Resolve header text color: per-table > document-level > nil (use default)
+  local header_txtcolor
+  if dict['tbl-header-txtcolor'] and dict['tbl-header-txtcolor'] ~= '' then
+    header_txtcolor = resolve_color(dict['tbl-header-txtcolor'], nil)
+  elseif doc_meta.table_header_txtcolor then
+    header_txtcolor = resolve_color(doc_meta.table_header_txtcolor, nil)
+  else
+    header_txtcolor = nil
   end
 
   -- COLSPECS
@@ -292,18 +332,18 @@ local function generate_tabularray(tbl)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\renewcommand{\\arraystretch}{1.5}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
   -- HEADER
-  local header_latex = get_rows_data(tbl.head.rows, header_color, false)
+  local header_latex = get_rows_data(tbl.head.rows, header_color, header_txtcolor, false)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", header_latex)}
 
   -- ROWS
   local rows_latex = ''
   for _, tablebody in ipairs(tbl.bodies) do
-    rows_latex = get_rows_data(tablebody.body, body_color, false)
+    rows_latex = get_rows_data(tablebody.body, body_color, body_txtcolor, false)
   end
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", rows_latex)}
 
   -- FOOTER
-  local footer_latex = get_rows_data(tbl.foot.rows, '', false)
+  local footer_latex = get_rows_data(tbl.foot.rows, '', nil, false)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", footer_latex)}
 
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}')}

@@ -24,8 +24,11 @@ cover_page: true                                 # generate cover page
 letterhead: true                                 # use a letterhead background
 dark_background: true                            # use the dark bg or letterhead with white text
 page_numbers: true                               # show page numbers
+colorlinks: true                                 # use colors for links
+urlcolor: magenta                                # color of url's
+linkcolor: magenta                               # color of markdown defined links
 paragraph_numbers: true                          # show paragraph numbers before headers
-papersize: a4
+papersize: a4                                    # page size
 letterhead_img: bgwhite.jpg                      # path to background image
 letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
 cover_illustration_img: cover-ill.png            # path to cover page illustration image
@@ -47,6 +50,10 @@ this document as "{{< meta client.short_name>}}".
 
 Hereafter jointly referred to as: “We”, both agree they have entered into a
 managed services agreement to which the following conditions apply:
+
+# Text Features
+
+Here are some text features. Links are working and should have disguished [colors](https://palet.com).
 
 # Tables
 
@@ -98,6 +105,42 @@ Lets start with the most simple table.
 | Parts    | 200      | 4.99     |
 
 : Custom body color {tbl-body-bgcolor="80,50,20"}
+
+
+| Component  | Version  | Status    |
+|:-----------|:--------:|----------:|
+| Frontend   | 2.1.0    | Stable    |
+| Backend    | 3.0.0    | Beta      |
+| Database   | 5.7.0    | Stable    |
+: Table with custom text colors {tbl-body-bgcolor="240,248,255" tbl-body-txtcolor="250,0,00" tbl-header-txtcolor="120,180,160" tbl-border-width="1.5" tbl-cell-padding="8" tbl-alignment="center"}
+
+| Component  | Version  | Status    |
+|:-----------|:--------:|----------:|
+| Frontend   | 2.1.0    | Stable    |
+| Backend    | 3.0.0    | Beta      |
+| Database   | 5.7.0    | Stable    |
+: Table with custom border props { tbl-border-color="0,80,160" tbl-border-width="5.5" }
+
+
+| Item       | Count    |
+|:-----------|:--------:|
+| No borders | Example  |
+: Table without borders {tbl-border-width="0"}
+
+| Component  | Version  | Status    |
+|:-----------|:--------:|----------:|
+| Frontend   | 2.1.0    | Stable    |
+| Backend    | 3.0.0    | Beta      |
+| Database   | 5.7.0    | Stable    |
+: Table with custom padding { tbl-cell-padding="8" }
+
+| Component  | Version  | Status    |
+|:-----------|:--------:|----------:|
+| Frontend   | 2.1.0    | Stable    |
+| Backend    | 3.0.0    | Beta      |
+| Database   | 5.7.0    | Stable    |
+: Table with align to the right of the page { tbl-alignment="right"}
+
 
 
 | Head 1     |   Head 2   |     Head 3 |
