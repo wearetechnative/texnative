@@ -8,6 +8,7 @@ local doc_meta = {
   table_border_color = nil,
   table_border_width = nil,
   table_cell_padding = nil,
+  table_alignment = nil,
   dark_background = false
 }
 
@@ -34,6 +35,9 @@ function Meta(meta)
   end
   if meta['table-cell-padding'] then
     doc_meta.table_cell_padding = pandoc.utils.stringify(meta['table-cell-padding'])
+  end
+  if meta['table-alignment'] then
+    doc_meta.table_alignment = pandoc.utils.stringify(meta['table-alignment'])
   end
   if meta['dark_background'] then
     doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
@@ -324,6 +328,26 @@ local function generate_tabularray(tbl)
     cell_padding = nil
   end
 
+  -- Resolve table alignment: per-table > document-level > center (default)
+  local table_alignment
+  if dict['tbl-alignment'] and dict['tbl-alignment'] ~= '' then
+    table_alignment = dict['tbl-alignment']
+  elseif doc_meta.table_alignment then
+    table_alignment = doc_meta.table_alignment
+  else
+    table_alignment = 'center'
+  end
+
+  -- Convert alignment to LaTeX command
+  local alignment_latex
+  if table_alignment == 'left' then
+    alignment_latex = '\\raggedright'
+  elseif table_alignment == 'right' then
+    alignment_latex = '\\raggedleft'
+  else
+    alignment_latex = '\\centering'
+  end
+
   -- COLSPECS
   local col_specs = tbl.colspecs
   local col_specs_latex = '| '
@@ -362,10 +386,7 @@ local function generate_tabularray(tbl)
   local result = pandoc.List:new{}
 
   if use_table_env then
-    result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\begin{table}[htbp]\n\\centering')}
-    if has_caption then
-      result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\caption{' .. caption_text .. '}')}
-    end
+    result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\begin{table}[htbp]\n' .. alignment_latex)}
     if has_label then
       result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\label{' .. dict['label'] .. '}')}
     end
@@ -423,6 +444,9 @@ local function generate_tabularray(tbl)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}\n' .. cell_padding_end .. border_width_end .. border_color_end)}
 
   if use_table_env then
+    if has_caption then
+      result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\caption{' .. caption_text .. '}')}
+    end
     result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{table}')}
   end
 
