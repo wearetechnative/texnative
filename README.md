@@ -1,4 +1,6 @@
-# Quarto PDF format Extension - TexNative PDF Format
+# TeXnative PDF Format
+
+**_Quarto PDF format Extension_**
 
 Modern customizable Business Document Format for creating clean Reports,
 Quotations, Letters etc...
