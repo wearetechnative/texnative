@@ -292,6 +292,48 @@ are rendered with appropriate spacing.
 
 For more grid table examples, see `example_grid_tables.qmd`.
 
+#### Row Spanning Cells
+
+Cells can span multiple rows using Pandoc's grid table syntax. Create row-spanning
+cells by merging row boundaries:
+
+```markdown
++---------------+---------------+---------------+
+| Temperature   | min           | -89.2 °C      |
+| 1961-1990     +---------------+---------------+
+|               | mean          | 14 °C         |
+|               +---------------+---------------+
+|               | max           | 56.7 °C       |
++---------------+---------------+---------------+
+
+: Table with cell spanning multiple rows
+```
+
+The first cell "Temperature 1961-1990" spans 3 rows. TexNative renders this using
+LaTeX's `\multirow` command.
+
+#### Multi-Row Headers
+
+Table headers can contain multiple rows. Use the `===` separator to mark the
+boundary between header rows and body rows:
+
+```markdown
++---------------+---------------+---------------+---------------+
+| Location      | Temperature 1961-1990 in degree Celsius       |
+|               +---------------+---------------+---------------+
+|               | min           | mean          | max           |
++===============+===============+===============+===============+
+| Antarctica    | -89.2         | N/A           | 19.8          |
++---------------+---------------+---------------+---------------+
+| Earth         | -89.2         | 14            | 56.7          |
++---------------+---------------+---------------+---------------+
+
+: Table with multi-row header
+```
+
+Both header rows receive header styling (background color, text formatting).
+Row spanning and column spanning work within headers.
+
 ## Credits
 
 Illustration is created by Illustrations.co from the 'Life' collection.
