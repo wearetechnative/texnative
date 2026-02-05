@@ -60,6 +60,11 @@ dark_background: true                            # use the dark bg or letterhead
 page_numbers: true                               # show page numbers
 paragraph_numbers: true                          # show paragraph numbers before headers
 papersize: a4
+
+urlcolor: magenta                                # color of url's
+linkcolor: magenta                               # color of markdown defined links
+colorlinks: true                                 # use colors for links
+
 letterhead_img: bgwhite.jpg                      # path to background image
 letterhead_img_darkbg: bgdark.jpg                # path to background image for dark background
 cover_illustration_img: cover-ill.png            # path to cover page illustration image
@@ -178,6 +183,50 @@ Per-table colors override document-level settings, which override theme defaults
 When `dark_background: true` is set, tables automatically use:
 - Header: `#471d00` (dark orange-brown)
 - Body: `#6d2b00` (medium orange-brown)
+
+### Table Properties Reference
+
+Quick reference for all available table configuration options.
+
+**Document-level YAML properties:**
+
+| Property | Format | Default (light) | Default (dark) | Description |
+|:---------|:-------|:----------------|:---------------|:------------|
+| `table-header-bgcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Theme default | `#471d00` | Header background color |
+| `table-body-bgcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Transparent | `#6d2b00` | Body background color |
+| `table-header-txtcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Black | White | Header text color |
+| `table-body-txtcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Black | White | Body text color |
+| `table-border-color` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Black | `#8b4513` | Border color |
+| `table-border-width` | Number (pt) | 0.4 | 0.4 | Border width (0 = none) |
+| `table-cell-padding` | Number (pt) | 6 | 6 | Cell padding |
+| `table-alignment` | `left` / `center` / `right` | left | left | Horizontal placement |
+
+**Per-table caption properties:**
+
+| Property | Format | Default | Description |
+|:---------|:-------|:--------|:------------|
+| `#tbl-<id>` | Label ID | None | Cross-reference label for the table |
+| `tbl-colwidths` | `"[n,n,...]"` (percentages) | Auto | Column width distribution |
+| `tbl-header-bgcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Header background color |
+| `tbl-body-bgcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Body background color |
+| `tbl-header-txtcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Header text color |
+| `tbl-body-txtcolor` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Body text color |
+| `tbl-border-color` | RGB `"R,G,B"` or Hex `"#RRGGBB"` | Document setting | Border color |
+| `tbl-border-width` | Number (pt) | Document setting | Border width (0 = none) |
+| `tbl-cell-padding` | Number (pt) | Document setting | Cell padding |
+| `tbl-alignment` | `left` / `center` / `right` | Document setting | Horizontal placement |
+
+**Property precedence:** Per-table caption properties override document-level YAML properties, which override theme defaults.
+
+**Example with styling properties:**
+
+```markdown
+| Feature | Description | Status |
+|:--------|:------------|-------:|
+| Auth    | OAuth 2.0   | Done   |
+
+: Feature status {#tbl-features tbl-colwidths="[30,50,20]" tbl-header-bgcolor="0,100,180" tbl-header-txtcolor="255,255,255" tbl-border-color="0,100,180" tbl-border-width="1" tbl-alignment="center"}
+```
 
 ## Credits
 
