@@ -1,3 +1,9 @@
+-- Import core utility functions
+local core = require("texnative_core")
+local hex_to_rgb = core.hex_to_rgb
+local escape_latex = core.escape_latex
+local resolve_color = core.resolve_color
+local render_inline_latex = core.render_inline_latex
 
 -- Module-level variables for document metadata
 local doc_meta = {
@@ -58,95 +64,8 @@ function Meta(meta)
   end
 end
 
--- Escape LaTeX special characters in plain text
-local function escape_latex(text)
-  local replacements = {
-    ['\\'] = '\\textbackslash{}',
-    ['&'] = '\\&',
-    ['%%'] = '\\%%',
-    ['%$'] = '\\$',
-    ['#'] = '\\#',
-    ['_'] = '\\_',
-    ['{'] = '\\{',
-    ['}'] = '\\}',
-    ['~'] = '\\textasciitilde{}',
-    ['%^'] = '\\textasciicircum{}',
-  }
-  for char, replacement in pairs(replacements) do
-    text = text:gsub(char, replacement)
-  end
-  return text
-end
-
--- Convert hex color (e.g., "471d00") to RGB string (e.g., "71,29,0")
-local function hex_to_rgb(hex)
-  hex = hex:gsub("^#", "") -- Remove leading # if present
-  if #hex == 6 then
-    local r = tonumber(hex:sub(1, 2), 16)
-    local g = tonumber(hex:sub(3, 4), 16)
-    local b = tonumber(hex:sub(5, 6), 16)
-    if r and g and b then
-      return string.format("%d,%d,%d", r, g, b)
-    end
-  end
-  return nil
-end
-
--- Generate LaTeX color definition or reference
--- Returns the color name to use with \cellcolor{}
--- If color_value is provided (RGB string like "255,0,0" or hex like "471d00"), 
--- returns inline color definition
-local function resolve_color(color_value, default_color_name)
-  if not color_value or color_value == '' then
-    return default_color_name
-  end
-  
-  -- Check if it's a hex color
-  local rgb = color_value
-  if color_value:match("^#?%x%x%x%x%x%x$") then
-    rgb = hex_to_rgb(color_value)
-  end
-  
-  -- Return inline RGB color specification
-  if rgb and rgb:match("^%d+,%d+,%d+$") then
-    return string.format("{RGB}{%s}", rgb)
-  end
-  
-  -- Fallback to default
-  return default_color_name
-end
-
--- Render Pandoc inline elements to LaTeX, preserving rich text formatting
-local function render_inline_latex(inlines)
-  local result = ''
-  for _, inline in ipairs(inlines) do
-    if inline.t == 'Str' then
-      result = result .. escape_latex(inline.text)
-    elseif inline.t == 'Space' then
-      result = result .. ' '
-    elseif inline.t == 'SoftBreak' then
-      result = result .. ' '
-    elseif inline.t == 'LineBreak' then
-      result = result .. '\\\\'
-    elseif inline.t == 'Strong' then
-      result = result .. '\\textbf{' .. render_inline_latex(inline.content) .. '}'
-    elseif inline.t == 'Emph' then
-      result = result .. '\\textit{' .. render_inline_latex(inline.content) .. '}'
-    elseif inline.t == 'Code' then
-      result = result .. '\\texttt{' .. escape_latex(inline.text) .. '}'
-    elseif inline.t == 'Link' then
-      local url = inline.target
-      local text = render_inline_latex(inline.content)
-      result = result .. '\\href{' .. url .. '}{' .. text .. '}'
-    elseif inline.t == 'RawInline' and inline.format == 'tex' then
-      result = result .. inline.text
-    else
-      -- Fallback: stringify unknown elements
-      result = result .. escape_latex(pandoc.utils.stringify(inline))
-    end
-  end
-  return result
-end
+-- Note: escape_latex, hex_to_rgb, resolve_color, and render_inline_latex
+-- are imported from texnative_core at the top of this file
 
 -- Render a bullet list to LaTeX
 local function render_bullet_list(list)
