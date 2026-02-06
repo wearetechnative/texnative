@@ -1,99 +1,107 @@
 # Tasks: add-cell-styling
 
-## Phase 1: Core Infrastructure
+## Phase 1: Core Parsing Functions (texnative_core.lua)
 
-- [x] **1.1** Add `parse_cell_address(addr)` function to convert Excel-style addresses (A1, B2) to (col, row) indices
-  - Handle columns A-Z (single letter for now, 26 columns max)
+- [ ] **1.1** Add `parse_cell_address(addr)` function to texnative_core.lua
+  - Convert Excel-style addresses (A1, B2) to (col, row) indices
+  - Handle columns A-Z (single letter, 26 columns max)
   - Handle row numbers 1-99
-  - Return nil for invalid addresses
+  - Support lowercase (a1 → col=1, row=1)
+  - Return nil, nil for invalid addresses
 
-- [x] **1.2** Add `parse_tbl_cells(str)` function to parse the JSON-like cell styles config
-  - Parse `{A1: {bgcolor: '#fff', txtcolor: '#000'}, B2: {...}}`
-  - Build lookup table: `cell_styles[col][row] = {bgcolor=..., txtcolor=...}`
-  - Handle missing/invalid entries gracefully
+- [ ] **1.2** Add `parse_tbl_cells(str)` function to texnative_core.lua
+  - Parse JSON-like config: `"{A1: {bgcolor: '#fff'}, B2: {txtcolor: '#000'}}"`
+  - Build 2D lookup table: `cell_styles[row][col] = {bgcolor=..., txtcolor=...}`
+  - Use parse_cell_address() for address conversion
+  - Handle missing/invalid entries gracefully (return empty table)
 
-- [x] **1.3** Unit tests for `parse_cell_address()`
-  - Test valid addresses: A1, B2, Z99, a1 (lowercase)
-  - Test invalid addresses: 1A, AA1, A0, A100, empty string, nil
-  - Test boundary cases: A1 (minimum), Z99 (maximum supported)
+- [ ] **1.3** Unit tests for `parse_cell_address()`
+  - Valid: A1→(1,1), B2→(2,2), Z99→(26,99), a1→(1,1)
+  - Invalid: 1A, AA1, A0, A100, "", nil, "$A$1"
+  - _File_: tests/unit/parse_cell_address_spec.lua
   - _Depends on_: 1.1
 
-- [x] **1.4** Unit tests for `parse_tbl_cells()`
-  - Test valid JSON-like input with single cell
-  - Test valid input with multiple cells
-  - Test bgcolor only, txtcolor only, both combined
-  - Test invalid/malformed input (graceful handling)
-  - Test empty input
+- [ ] **1.4** Unit tests for `parse_tbl_cells()`
+  - Single cell with bgcolor
+  - Multiple cells with different styles
+  - Combined bgcolor + txtcolor
+  - Hex and RGB color formats
+  - Invalid/malformed input returns {}
+  - _File_: tests/unit/parse_tbl_cells_spec.lua
   - _Depends on_: 1.2
 
-## Phase 2: Rendering Integration
+## Phase 2: 2D Cell Styles Array & Rendering
 
-- [x] **2.1** Extend `get_rows_data()` to accept optional `cell_styles` parameter
-  - Track current row index during iteration
-  - Pass cell position to cell renderer
-  - _Depends on_: 1.3, 1.4
+- [ ] **2.1** Build 2D cell_styles array in `generate_tabularray()`
+  - Parse `tbl-cells` from caption properties
+  - Create `cell_styles[row][col]` structure
+  - Initialize with section defaults (tbl-header-bgcolor, tbl-body-bgcolor, etc.)
+  - Overlay per-cell styles from parsed tbl-cells
+  - Use `resolve_color()` to convert all colors to LaTeX format
+  - _Depends on_: 1.4
 
-- [x] **2.2** Modify cell rendering to apply per-cell styles
-  - Lookup cell in `cell_styles` by (col, row)
-  - Override section colors with cell colors when present
-  - Apply `\cellcolor{}` and `\textcolor{}` per cell
+- [ ] **2.2** Modify `get_rows_data()` signature and implementation
+  - Change from: `get_rows_data(rows, cell_color, text_color, strong)`
+  - Change to: `get_rows_data(rows, cell_styles, start_row, strong)`
+  - `start_row` = absolute row number of first row in `rows` (1 for header, header_count+1 for body)
+  - Lookup colors per-cell: `cell_styles[start_row + row_idx - 1][col_idx]`
+  - Apply `\cellcolor[RGB]{r,g,b}` and `\textcolor[RGB]{r,g,b}{content}` per cell
+  - _Note_: Reuses existing LaTeX color commands, no new packages needed
   - _Depends on_: 2.1
 
-- [x] **2.3** Parse `tbl-cells` from caption properties in `generate_tabularray()`
-  - Extract from caption like other `tbl-*` properties
-  - Pass to `get_rows_data()` for header and body
-  - _Depends on_: 2.1, 2.2
+- [ ] **2.3** Integration tests for cell styling
+  - Single cell bgcolor in LaTeX output
+  - Single cell txtcolor in LaTeX output
+  - Combined bgcolor + txtcolor on same cell
+  - Cell style overrides section-level style
+  - Multiple cells across header and body
+  - Cell outside table bounds (ignored)
+  - Multi-row headers with unified row numbering
+  - _File_: tests/unit/cell_styling_integration_spec.lua
+  - _Depends on_: 2.2
 
-- [x] **2.4** Unit tests for cell rendering integration
-  - Test single cell bgcolor applied correctly in LaTeX output
-  - Test single cell txtcolor applied correctly in LaTeX output
-  - Test combined bgcolor + txtcolor on same cell
-  - Test cell style overrides section-level style
-  - Test multiple cells with different styles
-  - Test cell outside table bounds (should be ignored)
+## Phase 3: Documentation & Validation
+
+- [ ] **3.1** Verify example file renders correctly
+  - Render `example_table_cell_styling.qmd` to PDF
+  - Visual verification of all cell styling scenarios
   - _Depends on_: 2.3
 
-## Phase 3: Documentation & Testing
-
-- [x] **3.1** Add cell styling examples to `examples/individual_table_cell_styling.qmd`
-  - Single cell bgcolor
-  - Single cell txtcolor
-  - Combined bgcolor + txtcolor
-  - Multiple cells styled
-  - Cell styles combined with section-level styles
-  - _Depends on_: 2.4
-
-- [x] **3.2** Update `docs/table-formatting.md` with cell styling reference
-  - Cell address syntax explanation
-  - Configuration examples
-  - Precedence documentation
+- [ ] **3.2** Update documentation (if needed)
+  - Cell address syntax (A1, B2, etc.)
+  - tbl-cells configuration format
+  - Precedence rules (cell > table > document > theme)
   - _Depends on_: 3.1
 
-- [x] **3.3** Full render validation
-  - Render all example files
-  - Visual verification of cell styles
-  - _Depends on_: 3.1, 3.2
+## Implementation Notes
 
-## Phase 4: Inline RGB Default Colors Fix
+### No New LaTeX Packages
+The existing `\cellcolor[RGB]{r,g,b}` and `\textcolor[RGB]{r,g,b}{content}` commands already work for section-level styling. Cell styling uses the same commands.
 
-- [x] **4.1** Fix default header/body colors to use inline RGB instead of named colors
-  - Changed `tableheaderbgcolor` reference to inline `{RGB}{221,221,221}` for light mode
-  - Changed `tableheaderbgcolor` reference to inline `{RGB}{71,29,0}` for dark mode
-  - Changed `tablebodybgcolor` reference to inline `{RGB}{109,43,0}` for dark mode
-  - This eliminates dependency on predefined named colors in LaTeX template partials
+### 2D Array Approach
+```lua
+-- cell_styles structure
+cell_styles[row][col] = {
+  bgcolor = "{RGB}{255,0,0}",   -- resolved LaTeX color format
+  txtcolor = "{RGB}{255,255,255}"
+}
 
-- [x] **4.2** Unit tests for inline RGB default colors
-  - Test resolve_color with hex color input returns inline RGB format
-  - Test resolve_color with RGB string input returns inline RGB format  
-  - Test resolve_color returns default when nil/empty color provided
-  - Test default light mode header color (221,221,221)
-  - Test default dark mode header color (71,29,0)
-  - Test default dark mode body color (109,43,0)
-  - _Depends on_: 4.1
+-- Usage in get_rows_data
+local style = cell_styles[abs_row] and cell_styles[abs_row][col]
+if style and style.bgcolor then
+  cell_content = "\\cellcolor" .. style.bgcolor .. cell_content
+end
+```
+
+### Row Numbering
+Unified across header and body:
+- Header row 1 = absolute row 1
+- Body rows start at header_count + 1
+- tbl-cells addresses use absolute row numbers
 
 ## Parallelization Notes
 
 - Tasks 1.1 and 1.2 can run in parallel
-- Tasks 1.3 and 1.4 can run in parallel (after their respective implementations)
-- Phase 2 tasks are sequential (dependency chain)
-- Phase 3 tasks can start after 2.4, documentation in parallel with examples
+- Tasks 1.3 and 1.4 can run in parallel (after their implementations)
+- Phase 2 tasks are sequential (2.1 → 2.2 → 2.3)
+- Phase 3 can start after 2.3

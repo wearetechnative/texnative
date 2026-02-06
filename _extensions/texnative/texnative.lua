@@ -4,6 +4,14 @@ local hex_to_rgb = core.hex_to_rgb
 local escape_latex = core.escape_latex
 local resolve_color = core.resolve_color
 local render_inline_latex = core.render_inline_latex
+local parse_tbl_cells = core.parse_tbl_cells
+
+-- Debug to file
+local debug_file = io.open("/tmp/texnative_debug.log", "w")
+if debug_file then
+  debug_file:write("TEXNATIVE.LUA: Filter loading...\n")
+  debug_file:flush()
+end
 
 -- Module-level variables for document metadata
 local doc_meta = {
@@ -15,7 +23,9 @@ local doc_meta = {
   table_border_width = nil,
   table_cell_padding = nil,
   table_alignment = nil,
-  dark_background = false
+  dark_background = false,
+  -- Cell styles from Div wrapper, keyed by table identifier
+  div_cell_styles = {}
 }
 
 -- FILTERS/DATE-FORMAT.LUA
@@ -48,6 +58,8 @@ function Meta(meta)
   if meta['dark_background'] then
     doc_meta.dark_background = meta['dark_background'] == true or pandoc.utils.stringify(meta['dark_background']) == 'true'
   end
+
+  -- Note: Cell styles are now passed via Div wrapper attributes, not pre-filter metadata
 
   if meta.date then
     local format = "(%d+)-(%d+)-(%d+)"
@@ -136,50 +148,78 @@ local function render_cell_contents(contents)
   return result
 end
 
-local function get_rows_data(rows, cell_color, text_color, strong)
+local function get_rows_data(rows, cell_color, text_color, strong, cell_styles, row_offset)
+  -- cell_styles: 2D array [col][row] with {bgcolor, txtcolor} for per-cell overrides
+  -- row_offset: starting row number for unified addressing (1 for header, header_count+1 for body)
 
-  local latex_cell_color = ''
-  local latex_text_color_begin = ''
-  local latex_text_color_end = ''
   local strong_begin = ''
   local strong_end = ''
-
-  if(cell_color and cell_color ~='') then
-    -- Check if it's an inline RGB color specification or a named color
-    if cell_color:match("^{RGB}") then
-      latex_cell_color = '\\cellcolor[RGB]' .. cell_color:gsub("^{RGB}", "") .. ''
-    else
-      latex_cell_color = '\\cellcolor{'..cell_color..'}'
-    end
-  end
-  if(text_color and text_color ~= '') then
-    -- Check if it's an inline RGB color specification or a named color
-    if text_color:match("^{RGB}") then
-      latex_text_color_begin = '\\textcolor[RGB]' .. text_color:gsub("^{RGB}", "") .. '{'
-      latex_text_color_end = '}'
-    else
-      latex_text_color_begin = '\\textcolor{' .. text_color .. '}{'
-      latex_text_color_end = '}'
-    end
-  end
   if(strong) then
     strong_begin = "\\bf{"
     strong_end = "}"
   end
-  local data = ''
-  for _, row in ipairs(rows) do
 
-    for k, cell in ipairs(row.cells) do
+  -- Helper to format a color for LaTeX
+  local function format_cell_color(color)
+    if not color or color == '' then return '' end
+    if color:match("^{RGB}") then
+      return '\\cellcolor[RGB]' .. color:gsub("^{RGB}", "") .. ''
+    else
+      return '\\cellcolor{' .. color .. '}'
+    end
+  end
+
+  local function format_text_color_begin(color)
+    if not color or color == '' then return '' end
+    if color:match("^{RGB}") then
+      return '\\textcolor[RGB]' .. color:gsub("^{RGB}", "") .. '{'
+    else
+      return '\\textcolor{' .. color .. '}{'
+    end
+  end
+
+  local function format_text_color_end(color)
+    if not color or color == '' then return '' end
+    return '}'
+  end
+
+  local data = ''
+  local current_row = row_offset or 1
+
+  for _, row in ipairs(rows) do
+    for col_idx, cell in ipairs(row.cells) do
       local cell_content = render_cell_contents(cell.contents)
+
+      -- Determine colors: per-cell overrides section-level defaults
+      local effective_bgcolor = cell_color
+      local effective_txtcolor = text_color
+
+      -- Check for per-cell style override
+      if cell_styles and cell_styles[col_idx] and cell_styles[col_idx][current_row] then
+        local style = cell_styles[col_idx][current_row]
+        if style.bgcolor then
+          effective_bgcolor = resolve_color(style.bgcolor, nil)
+        end
+        if style.txtcolor then
+          effective_txtcolor = resolve_color(style.txtcolor, nil)
+        end
+      end
+
+      -- Format colors for this cell
+      local latex_cell_color = format_cell_color(effective_bgcolor)
+      local latex_text_color_begin = format_text_color_begin(effective_txtcolor)
+      local latex_text_color_end = format_text_color_end(effective_txtcolor)
+
       data = data .. latex_cell_color .. latex_text_color_begin .. strong_begin .. cell_content .. strong_end .. latex_text_color_end
-      if (k == #row.cells) then
+
+      if (col_idx == #row.cells) then
         data = data .. ' \\\\ \n'
       else
         data = data .. ' & '
       end
     end
-    data = data ..'\n \\hline \n'
-
+    data = data .. '\n \\hline \n'
+    current_row = current_row + 1
   end
   return data
 end
@@ -188,8 +228,67 @@ end
 local function generate_tabularray(tbl)
 
   local caption_raw = pandoc.utils.stringify(tbl.caption.long)
-  local caption_content = caption_raw:match("{(.-)}")
-  local caption_text = caption_raw:gsub("%s*{.-}%s*", ""):match("^%s*(.-)%s*$") -- Remove property block and trim
+
+  -- First, try to get attributes from tbl.attr.attributes (Quarto-processed tables)
+  -- This is where Quarto stores caption attributes after processing FloatRefTarget
+  local attr_dict = {}
+  if tbl.attr and tbl.attr.attributes then
+    for k, v in pairs(tbl.attr.attributes) do
+      attr_dict[k] = v
+    end
+  end
+
+  -- Extract the property block from caption, handling nested braces
+  -- Find the outermost { } block by matching braces
+  local function find_property_block(str)
+    local start_pos = str:find("{")
+    if not start_pos then return nil end
+
+    local depth = 0
+    local end_pos = nil
+    for i = start_pos, #str do
+      local c = str:sub(i, i)
+      if c == "{" then
+        depth = depth + 1
+      elseif c == "}" then
+        depth = depth - 1
+        if depth == 0 then
+          end_pos = i
+          break
+        end
+      end
+    end
+
+    if end_pos then
+      return str:sub(start_pos + 1, end_pos - 1)
+    end
+    return nil
+  end
+
+  -- Extract property block from caption and get caption text
+  local caption_content = find_property_block(caption_raw)
+  local caption_text
+  if caption_content then
+    -- Find and remove the entire property block including braces
+    local start_pos = caption_raw:find("{")
+    local depth = 0
+    local end_pos = nil
+    for i = start_pos, #caption_raw do
+      local c = caption_raw:sub(i, i)
+      if c == "{" then depth = depth + 1
+      elseif c == "}" then
+        depth = depth - 1
+        if depth == 0 then end_pos = i; break end
+      end
+    end
+    if end_pos then
+      caption_text = (caption_raw:sub(1, start_pos - 1) .. caption_raw:sub(end_pos + 1)):match("^%s*(.-)%s*$")
+    else
+      caption_text = caption_raw:match("^%s*(.-)%s*$")
+    end
+  else
+    caption_text = caption_raw:match("^%s*(.-)%s*$")
+  end
 
   -- Normalize quotes: convert Unicode curly quotes to ASCII quotes
   if caption_content then
@@ -202,10 +301,39 @@ local function generate_tabularray(tbl)
   -- Parse caption properties into dict
   local dict = {}
   if caption_content then
-    -- First, try to match quoted values like key="value"
-    for key, value in string.gmatch(caption_content, '([%w%-]+)="([^"]*)"') do
-      dict[key] = value
+    -- Match key="value" where value can contain nested braces
+    -- We need to handle tbl-cells="{...}" specially
+    local pos = 1
+    while pos <= #caption_content do
+      -- Try to match key="
+      local key_start, key_end, key = caption_content:find('([%w%-]+)="', pos)
+      if key_start then
+        -- Find the matching closing quote, accounting for nested braces
+        local value_start = key_end + 1
+        local value_end = nil
+        local brace_depth = 0
+        for i = value_start, #caption_content do
+          local c = caption_content:sub(i, i)
+          if c == "{" then
+            brace_depth = brace_depth + 1
+          elseif c == "}" then
+            brace_depth = brace_depth - 1
+          elseif c == '"' and brace_depth == 0 then
+            value_end = i - 1
+            break
+          end
+        end
+        if value_end then
+          dict[key] = caption_content:sub(value_start, value_end)
+          pos = value_end + 2
+        else
+          pos = key_end + 1
+        end
+      else
+        break
+      end
     end
+
     -- Then match unquoted values like key=value (no spaces in value)
     for key, value in string.gmatch(caption_content, '([%w%-]+)=(%[?[^%s"]+%]?)') do
       if not dict[key] then  -- Don't overwrite quoted values
@@ -216,6 +344,22 @@ local function generate_tabularray(tbl)
     local label = caption_content:match('#([%w%-]+)')
     if label then
       dict['label'] = label
+    end
+  end
+
+  -- If label not found in caption, try tbl.attr.identifier (Quarto moves it there)
+  if not dict['label'] and tbl.attr and tbl.attr.identifier and tbl.attr.identifier ~= '' then
+    dict['label'] = tbl.attr.identifier
+  end
+
+  -- Merge attributes from tbl.attr.attributes (Quarto extracts these from caption)
+  -- This handles the case where Quarto processes a labeled table and moves
+  -- custom attributes from the caption to tbl.attr.attributes
+  if tbl.attr and tbl.attr.attributes then
+    for key, value in pairs(tbl.attr.attributes) do
+      if not dict[key] then
+        dict[key] = value
+      end
     end
   end
 
@@ -424,19 +568,40 @@ local function generate_tabularray(tbl)
 
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", border_color_begin .. border_width_begin .. cell_padding_begin .. '\\renewcommand{\\arraystretch}{' .. array_stretch .. '}\n\\begin{tabular}{ '.. col_specs_latex .. ' } \n \\hline')}
 
-  -- HEADER
-  local header_latex = get_rows_data(tbl.head.rows, header_color, header_txtcolor, false)
+  -- Parse per-cell styles from tbl-cells attribute
+  -- Priority: 1. table attr (from Div wrapper), 2. caption dict, 3. doc_meta.div_cell_styles
+  local cell_styles = {}
+  local tbl_id = dict['label'] or (tbl.attr and tbl.attr.identifier) or nil
+
+  if tbl.attr and tbl.attr.attributes and tbl.attr.attributes['tbl-cells'] then
+    -- Found in table attributes (set by DivFilter)
+    cell_styles = parse_tbl_cells(tbl.attr.attributes['tbl-cells'])
+  elseif dict['tbl-cells'] then
+    -- Found in caption (works for unlabeled tables)
+    cell_styles = parse_tbl_cells(dict['tbl-cells'])
+  elseif tbl_id and doc_meta.div_cell_styles[tbl_id] then
+    -- Found in Div wrapper (legacy, via div_cell_styles dict)
+    cell_styles = parse_tbl_cells(doc_meta.div_cell_styles[tbl_id])
+  end
+
+  -- Count header rows for unified row addressing
+  local header_row_count = #tbl.head.rows
+
+  -- HEADER (row numbering starts at 1)
+  local header_latex = get_rows_data(tbl.head.rows, header_color, header_txtcolor, false, cell_styles, 1)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", header_latex)}
 
-  -- ROWS
+  -- ROWS (row numbering continues after header)
   local rows_latex = ''
+  local body_row_offset = header_row_count + 1
   for _, tablebody in ipairs(tbl.bodies) do
-    rows_latex = get_rows_data(tablebody.body, body_color, body_txtcolor, false)
+    rows_latex = get_rows_data(tablebody.body, body_color, body_txtcolor, false, cell_styles, body_row_offset)
+    body_row_offset = body_row_offset + #tablebody.body
   end
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", rows_latex)}
 
-  -- FOOTER
-  local footer_latex = get_rows_data(tbl.foot.rows, '', nil, false)
+  -- FOOTER (continues row numbering)
+  local footer_latex = get_rows_data(tbl.foot.rows, '', nil, false, cell_styles, body_row_offset)
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", footer_latex)}
 
   result = result .. pandoc.List:new{pandoc.RawBlock("latex", '\\end{tabular}\n' .. cell_padding_end .. border_width_end .. border_color_end)}
@@ -459,10 +624,41 @@ local function TableFilter(tbl)
   return nil
 end
 
+-- Div filter to extract tbl-cells from wrapper divs and pass to tables
+-- This allows cell styling for labeled tables where Quarto consumes caption attributes
+local function DivFilter(div)
+  -- Check if this div has tbl-cells attribute
+  local tbl_cells = div.attributes['tbl-cells']
+  if not tbl_cells then
+    return nil  -- Not a cell-styling div, leave unchanged
+  end
+
+  -- Find tables inside this div and set the tbl-cells attribute directly on them
+  local modified = false
+  local function process_table(tbl)
+    -- Set the tbl-cells attribute directly on the table
+    tbl.attr.attributes['tbl-cells'] = tbl_cells
+    modified = true
+    return tbl  -- Return modified table
+  end
+
+  -- Walk the div contents to find and modify tables
+  local new_content = pandoc.walk_block(pandoc.Div(div.content), {Table = process_table}).content
+
+  if modified then
+    -- Return the div contents without the wrapper (unwrap), tables now have tbl-cells attr
+    return new_content
+  end
+
+  return nil
+end
+
 -- Return a list of filter tables to ensure proper execution order:
 -- 1. Meta runs first to collect document-level settings
--- 2. Table runs second with access to those settings
+-- 2. Div runs to extract tbl-cells from wrapper divs
+-- 3. Table runs with access to those settings
 return {
   { Meta = Meta },
+  { Div = DivFilter },
   { Table = TableFilter }
 }

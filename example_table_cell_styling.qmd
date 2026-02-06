@@ -16,83 +16,99 @@ disable_justify: true                            # true: justify left and right,
 
 TeXnative supports per-cell background and text colors using Excel-style addressing (A1, B2, etc.).
 
+For labeled tables, use a Div wrapper with the `tbl-cells` attribute.
+
 ## Basic Cell Background Color
 
 Highlight specific cells with `tbl-cells`:
 
+::: {tbl-cells="{B1: {bgcolor: '#e0e0e0'}, B2: {bgcolor: '#90EE90'}, B3: {bgcolor: '#FFD700'}, B4: {bgcolor: '#FFB6C1'}}"}
 | Feature    | Status   | Priority |
 |:-----------|:---------|:---------|
 | Auth       | Complete | High     |
 | API        | In Work  | Medium   |
 | Docs       | Pending  | Low      |
 
-: Features with highlighted status {#tbl-basic-bgcolor tbl-cells="{B1: {bgcolor: '#e0e0e0'}, B2: {bgcolor: '#90EE90'}, B3: {bgcolor: '#FFD700'}, B4: {bgcolor: '#FFB6C1'}}"}
+: Features with highlighted status {#tbl-basic-bgcolor}
+:::
 
 ## Cell Text Color
 
 Change text color in specific cells:
 
+::: {tbl-cells="{C2: {txtcolor: '#006400'}, C3: {txtcolor: '#8B0000'}, C4: {txtcolor: '#006400'}}"}
 | Metric     | Value    | Trend    |
 |:-----------|:---------|:---------|
 | Revenue    | $10.5M   | Up       |
 | Costs      | $8.2M    | Down     |
 | Profit     | $2.3M    | Up       |
 
-> `: Metrics with colored trends {#tbl-txtcolor tbl-cells="{C2: {txtcolor: '#006400'}, C3: {txtcolor: '#8B0000'}, C4: {txtcolor: '#006400'}}"}`
+: Metrics with colored trends {#tbl-txtcolor}
+:::
 
 ## Combined Background and Text Colors
 
 Apply both colors to the same cell:
 
+::: {tbl-cells="{B2: {bgcolor: '#DC143C', txtcolor: '#FFFFFF'}, B3: {bgcolor: '#FFA500', txtcolor: '#000000'}, B4: {bgcolor: '#228B22', txtcolor: '#FFFFFF'}}"}
 | Component  | Health   | Action   |
 |:-----------|:---------|:---------|
 | Database   | Critical | Restart  |
 | Cache      | Warning  | Monitor  |
 | API        | OK       | None     |
 
-: System health with combined styling {#tbl-combined tbl-cells="{B2: {bgcolor: '#DC143C', txtcolor: '#FFFFFF'}, B3: {bgcolor: '#FFA500', txtcolor: '#000000'}, B4: {bgcolor: '#228B22', txtcolor: '#FFFFFF'}}"}
+: System health with combined styling {#tbl-combined}
+:::
 
 ## Multiple Cells Styled
 
 Style multiple cells across the table:
 
+::: {tbl-cells="{A1: {bgcolor: '#4169E1', txtcolor: '#FFFFFF'}, D1: {bgcolor: '#4169E1', txtcolor: '#FFFFFF'}, D2: {bgcolor: '#90EE90'}, C3: {bgcolor: '#FFB6C1'}}"}
 | Q1         | Q2       | Q3       | Q4       |
 |:-----------|:---------|:---------|:---------|
 | $2.1M      | $2.3M    | $2.0M    | $2.8M    |
 | $1.8M      | $1.9M    | $2.1M    | $2.2M    |
 
-: Quarterly data with highlights {#tbl-multi tbl-cells="{A1: {bgcolor: '#4169E1', txtcolor: '#FFFFFF'}, D1: {bgcolor: '#4169E1', txtcolor: '#FFFFFF'}, D2: {bgcolor: '#90EE90'}, C3: {bgcolor: '#FFB6C1'}}"}
+: Quarterly data with highlights {#tbl-multi}
+:::
 
 ## Cell Styling with Multi-Row Headers
 
 When using `tbl-header-rows`, row numbering is unified (header rows are 1, 2, etc.):
 
+::: {tbl-cells="{B4: {bgcolor: '#90EE90'}, C4: {bgcolor: '#90EE90'}}"}
 | Category   | 2023     | 2024     |
 |:-----------|:---------|:---------|
 | Revenue    | $50M     | $65M     |
 | Expenses   | $40M     | $45M     |
 | Net Income | $10M     | $20M     |
 
-: Multi-row header example {#tbl-multirow tbl-header-rows="1" tbl-cells="{B4: {bgcolor: '#90EE90'}, C4: {bgcolor: '#90EE90'}}"}
+: Multi-row header example {#tbl-multirow tbl-header-rows="1"}
+:::
 
 ## Cell Styling Precedence
 
 Cell styles override section-level styles (tbl-header-bgcolor, tbl-body-bgcolor):
 
+::: {tbl-cells="{A2: {bgcolor: '#FFD700'}, A3: {bgcolor: '#FF6347'}}"}
 | Item       | Count    | Total    |
 |:-----------|:---------|:---------|
 | Widgets    | 100      | $500     |
 | Gadgets    | 50       | $750     |
 
-: Precedence demo - A2 overrides body color {#tbl-precedence tbl-body-bgcolor="#E6E6FA" tbl-cells="{A2: {bgcolor: '#FFD700'}, A3: {bgcolor: '#FF6347'}}"}
+: Precedence demo - A2 overrides body color {#tbl-precedence tbl-body-bgcolor="#E6E6FA"}
+:::
 
 ## RGB Color Format
 
 Colors can also be specified in RGB format:
 
+::: {tbl-cells="{B2: {bgcolor: '100,149,237'}, C3: {bgcolor: '255,182,193'}}"}
 | Name       | Role     | Team     |
 |:-----------|:---------|:---------|
 | Alice      | Lead     | Alpha    |
 | Bob        | Dev      | Beta     |
 
-: RGB color example {#tbl-rgb tbl-cells="{B2: {bgcolor: '100,149,237'}, C3: {bgcolor: '255,182,193'}}"}
+: RGB color example {#tbl-rgb}
+:::

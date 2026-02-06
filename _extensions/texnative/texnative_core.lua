@@ -64,6 +64,77 @@ function M.resolve_color(color_value, default_color_name)
   return default_color_name
 end
 
+-- Parse Excel-style cell address (e.g., "A1", "B2") to (col, row)
+-- Returns col, row as numbers (1-indexed), or nil, nil for invalid addresses
+function M.parse_cell_address(addr)
+  if type(addr) ~= 'string' or addr == '' then
+    return nil, nil
+  end
+
+  -- Match single letter (A-Z or a-z) followed by 1-2 digit number
+  local col_letter, row_str = addr:match("^([A-Za-z])(%d+)$")
+  if not col_letter or not row_str then
+    return nil, nil
+  end
+
+  -- Convert column letter to number (A=1, B=2, ..., Z=26)
+  local col = col_letter:upper():byte() - string.byte('A') + 1
+
+  -- Parse row number (1-99 valid)
+  local row = tonumber(row_str)
+  if not row or row < 1 or row > 99 then
+    return nil, nil
+  end
+
+  return col, row
+end
+
+-- Parse tbl-cells configuration string into a 2D cell styles lookup table
+-- Input: "{A1: {bgcolor: '#ff0000', txtcolor: '#ffffff'}, B2: {bgcolor: '#00ff00'}}"
+-- Output: cell_styles[col][row] = {bgcolor = '#ff0000', txtcolor = '#ffffff'}
+function M.parse_tbl_cells(str)
+  local cell_styles = {}
+
+  if type(str) ~= 'string' or str == '' then
+    return cell_styles
+  end
+
+  -- Match each cell entry: A1: {bgcolor: '...', txtcolor: '...'}
+  -- Simple pattern: single letter + digits, then colon, then braced properties
+  -- We validate single-letter addresses in parse_cell_address
+  for addr, props in str:gmatch("([A-Za-z]%d+)%s*:%s*{([^}]*)}") do
+    local col, row = M.parse_cell_address(addr)
+    if col and row then
+      -- Initialize col table if needed (cell_styles[col][row] for fast lookup)
+      if not cell_styles[col] then
+        cell_styles[col] = {}
+      end
+
+      -- Parse properties within the braces
+      local style = {}
+
+      -- Match bgcolor property (handles both single and double quotes)
+      local bgcolor = props:match("bgcolor%s*:%s*['\"]([^'\"]+)['\"]")
+      if bgcolor then
+        style.bgcolor = bgcolor
+      end
+
+      -- Match txtcolor property
+      local txtcolor = props:match("txtcolor%s*:%s*['\"]([^'\"]+)['\"]")
+      if txtcolor then
+        style.txtcolor = txtcolor
+      end
+
+      -- Only add if we found at least one property
+      if style.bgcolor or style.txtcolor then
+        cell_styles[col][row] = style
+      end
+    end
+  end
+
+  return cell_styles
+end
+
 -- Render Pandoc inline elements to LaTeX, preserving rich text formatting
 function M.render_inline_latex(inlines)
   local result = ''

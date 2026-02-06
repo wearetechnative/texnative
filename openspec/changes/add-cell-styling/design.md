@@ -73,33 +73,77 @@ Alternative considered: caption property syntax
 
 ### 5. Implementation Approach
 
+**Key Constraint**: No new LaTeX packages required. The existing `\cellcolor[RGB]{r,g,b}` and `\textcolor[RGB]{r,g,b}{content}` commands used for header/body section coloring will be reused for individual cells.
+
+#### Architecture: 2D Cell Properties Array
+
+Before rendering, build a 2D array (`cell_styles[row][col]`) containing all cell properties. This array is populated by:
+1. Section-level defaults (tbl-header-bgcolor, tbl-body-bgcolor, etc.)
+2. Per-cell overrides from tbl-cells (applied on top)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  YAML Frontmatter / Caption Properties                      │
-│  tbl-cells: {A1: {bgcolor: "#ff0000"}, ...}                │
+│  Caption Properties                                          │
+│  tbl-cells="{A1: {bgcolor: '#ff0000'}, B2: {txtcolor: ...}}"│
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  Meta() Filter                                              │
-│  - Parse tbl-cells into cell_styles lookup table            │
-│  - Key: "col,row" → Value: {bgcolor, txtcolor}              │
+│  texnative_core.parse_tbl_cells()                           │
+│  - Parse JSON-like string to structured data                │
+│  - Use parse_cell_address() to convert A1 → (col=1, row=1)  │
+│  - Output: cell_styles[row][col] = {bgcolor, txtcolor}      │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  get_rows_data()                                            │
-│  - For each cell, check cell_styles[col..","..row]          │
-│  - If match: apply cell-specific colors                     │
-│  - Else: fall back to section colors (header/body)          │
+│  generate_tabularray()                                       │
+│  - Build 2D cell_styles array for entire table              │
+│  - Initialize with section defaults (header/body colors)    │
+│  - Overlay per-cell styles from parsed tbl-cells            │
+│  - Pass cell_styles to get_rows_data()                      │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  LaTeX Output                                               │
-│  \cellcolor[HTML]{FF0000} \textcolor[HTML]{FFFFFF}{content} │
+│  get_rows_data(rows, cell_styles, start_row)                │
+│  - For each cell at (row, col):                             │
+│    - Look up cell_styles[row][col]                          │
+│    - Apply bgcolor via \cellcolor[RGB]{r,g,b}               │
+│    - Apply txtcolor via \textcolor[RGB]{r,g,b}{content}     │
+│  - Same LaTeX commands already used for section colors      │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  LaTeX Output (using EXISTING color commands)               │
+│  \cellcolor[RGB]{255,0,0}\textcolor[RGB]{255,255,255}{text} │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+#### Key Implementation Details
+
+1. **Reuse existing color infrastructure**: The `resolve_color()` function and `\cellcolor[RGB]{}` / `\textcolor[RGB]{}` commands are already working for section-level styling. Cell styling uses identical LaTeX output.
+
+2. **2D Array Structure**:
+   ```lua
+   cell_styles[row][col] = {
+     bgcolor = "{RGB}{255,0,0}",  -- resolved color format
+     txtcolor = "{RGB}{255,255,255}"
+   }
+   ```
+
+3. **Row numbering**: Unified across header and body. Header row 1 = absolute row 1, body rows continue from header count + 1.
+
+4. **Signature change for get_rows_data()**:
+   ```lua
+   -- Current signature
+   get_rows_data(rows, cell_color, text_color, strong)
+   
+   -- New signature
+   get_rows_data(rows, cell_styles, start_row, strong)
+   ```
+   The `start_row` parameter indicates the absolute row number of the first row in `rows`, enabling correct lookup in the 2D array.
 
 ### 6. Precedence Rules
 
