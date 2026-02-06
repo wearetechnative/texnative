@@ -1,5 +1,7 @@
 # Changelog
 
+## Next
+
 ## Version 1.1.1
 
 - fix global styling

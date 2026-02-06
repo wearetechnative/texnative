@@ -31,21 +31,6 @@ Lets start with the most simple table.
 
 : Table with rich text
 
-
-+-----------+----------+--------------------+
-| Fruit     | Price    | Advantages         |
-+:==========+=========:+====================+
-| Bananas   | €1.34    | - built-in wrapper |
-|           |          | - bright color     |
-+-----------+----------+--------------------+
-| Oranges   | €2.10    | - cures scurvy     |
-|           |          | - tasty            |
-+-----------+----------+--------------------+
-
-: Sample grid table.
-
-
-
 | Head 1     |   Head 2   |     Head 3 |
 |:-----------|:----------:|-----------:|
 | Alpha      |  **Beta**  |      Gamma |
@@ -80,6 +65,15 @@ Lets start with the most simple table.
 | Parts    | 200      | 4.99     |
 
 : Custom body color {tbl-body-bgcolor="80,50,20" tbl-body-txtcolor="255,255,255"}
+
+| Item     | Quantity | Price    |
+|:---------|:--------:|---------:|
+| Widgets  | 100      | 9.99     |
+| Gadgets  | 50       | 19.99    |
+| Parts    | 200      | 4.99     |
+
+: Using Hex Color definitions {tbl-body-bgcolor="#ff0000" tbl-body-txtcolor="#ffffff"}
+
 
 
 | Component  | Version  | Status    |
