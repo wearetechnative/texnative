@@ -3,12 +3,12 @@ format: texnative-pdf
 filters:
   - texnative
 
-toc: false                                       # show table of contents
-page_numbers: true                               # show page numbers
-paragraph_numbers: false                         # show paragraph numbers before headers
-papersize: a4                                    # page size
-letterhead: false                                # use a letterhead background
-disable_justify: true                            # true: justify left and right, false: only justify left;
+toc: false
+page_numbers: true
+paragraph_numbers: false
+papersize: a4
+letterhead: false
+disable_justify: true
 
 ---
 

@@ -41,8 +41,6 @@ contributes:
         - "partials/document-background.tex"
         - "partials/document-header-footer.tex"
         - "partials/document-text-style.tex"
-        #- "partials/page-cover.tex"
-        #- "partials/page-title.tex"
         - "partials/page-cover.tex"
         - "partials/page-title.tex"
         - "before-body.tex"

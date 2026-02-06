@@ -25,6 +25,10 @@ TexNative is a modern, customizable Quarto extension for creating professional b
 - **Asset management**: Images and backgrounds in `images/` with format-resources declarations
 
 ### Testing Strategy
+- **Unit tests**: Lua core functions tested with Busted framework (`busted tests/unit/` or `./tests/run_tests.sh`)
+  - Tests for `escape_latex`, `hex_to_rgb`, `resolve_color`, `render_inline_latex`
+  - Mock Pandoc API in `tests/mocks/pandoc.lua` enables testing without Quarto runtime
+  - Run via `nix-shell -p luaPackages.busted --run "busted tests/unit/"` on NixOS
 - **Render tests**: Verify documents render to PDF without errors using `quarto render`
 - **Visual validation**: Check generated PDFs against expected output (screenshots provided)
 - **Template validation**: Use `template.qmd` as reference implementation
